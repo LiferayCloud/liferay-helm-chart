@@ -9,7 +9,7 @@ cd ${REPOSITORY}
 git checkout ${PUBLISH_BRANCH}
 
 # Index the helm build chart and merge the index with the published one
-helm repo index ${CHARTS_TMP_DIR} --url ${CHARTS_URL} --merge "${INDEX_DIR}/index.yaml"
+helm repo index ${CHARTS_TMP_DIR} --url ${OCI_URL} --merge "${INDEX_DIR}/index.yaml"
 
 # Copy the updated index over the previously published one
 mv -f ${CHARTS_TMP_DIR}/index.yaml ${INDEX_DIR}/index.yaml

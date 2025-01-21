@@ -21,6 +21,7 @@ on:
 env:
   CHART_VERSION: "0.0.0"
   CHARTS_TMP_DIR: dist
+  OCI_URL: "oci://ghcr.io/${{ github.repository }}/charts"
   LC_ALL: en_US.UTF-8
   MAIN_REPO: "LiferayCloud/liferay-helm-chart"
   PUBLISH: "false"
@@ -107,11 +108,12 @@ jobs:
         if: ${{ env.PUBLISH == 'true' }}
         working-directory: dist
         run: |
-          HELM_REPOSITORY=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          OCI_URL=$(echo "$OCI_URL" | tr '[:upper:]' '[:lower:]')
           for f in *.tgz ; do
               echo "$f"
-              helm push $f oci://ghcr.io/${HELM_REPOSITORY}/charts
+              helm push "$f" "$OCI_URL"
           done
+          echo "OCI_URL=$OCI_URL" >> ${GITHUB_ENV}
 
       - name: Install YQ
         if: ${{ env.PUBLISH == 'true' }}
@@ -130,7 +132,6 @@ jobs:
         run: |
           ./.github/scripts/publish_helm_index.sh
         env:
-          CHARTS_URL: "oci://ghcr.io/${{ github.actor }}/${{ github.event.repository.name }}/charts"
           GIT_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INDEX_DIR: charts
