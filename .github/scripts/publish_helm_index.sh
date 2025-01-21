@@ -30,15 +30,15 @@ CHANGED=($(git diff --name-only | xargs))
 
 for value in "${CHANGED[@]}"
 do
-  FILES="${FILES} -F files[][path]=\"$value\" -F files[][contents]=$(base64 -w0 $value)"
+  FILES="${FILES} -F files[][path]=$value -F files[][contents]=$(base64 -w0 $value)"
 done
 
 gh api graphql \
-	-F \$githubRepository=${GIT_REPOSITORY} \
+	-F githubRepository=${GIT_REPOSITORY} \
 	-F branchName=${PUBLISH_BRANCH} \
 	-F expectedHeadOid=$(git rev-parse HEAD) \
-	-F commitMessage="publish: new helm index release" \
-	-F "query=@.github/api/createCommitOnBranch.gql" \
+	-F commitMessage="github-actions[bot] commit updated helm index" \
+	-F "query=@${SOURCE_DIR}/.github/api/createCommitOnBranch.gql" \
 	${FILES}
 
 popd >& /dev/null
