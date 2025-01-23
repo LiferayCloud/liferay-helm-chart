@@ -209,6 +209,10 @@ spec:
               name: liferay-file-resources
               subPath: web.xml
               readOnly: true
+            - mountPath: /usr/local/liferay/scripts/pre-configure/000_jdk_java_options.sh
+              name: liferay-file-resources
+              subPath: 000_jdk_java_options.sh
+              readOnly: true
             {{- end }}
             {{- end }}
             {{- with .Values.volumeMounts }}

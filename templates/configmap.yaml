@@ -121,6 +121,10 @@ data:
     {{- end }}
 
   {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
+  000_jdk_java_options.sh: |
+    #!/usr/bin/env bash
+    export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS} --add-opens=jdk.naming.dns/com.sun.jndi.dns=java.naming"
+
   server.xml: |
     <?xml version="1.0" encoding="UTF-8"?>
     <!--
