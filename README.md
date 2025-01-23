@@ -28,8 +28,6 @@ NAME                               	CHART VERSION	APP VERSION	DESCRIPTION
 liferay-helm-chart-repo/liferay	0.1.0        	latest     	A Liferay DXP Helm chart for Kubernetes
 ``` -->
 
-### [For Local Development](FOR_LOCAL_DEVELOPMENT.md)
+### [For Local Development](docs/FOR_LOCAL_DEVELOPMENT.md)
 
-### [For Production](FOR_PRODUCTION.md)
-
-### [Release Management](RELEASE_MANAGEMENT.md)
+### [For Production](docs/FOR_PRODUCTION.md)

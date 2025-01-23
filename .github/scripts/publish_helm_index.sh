@@ -18,7 +18,9 @@ mv -f ${CHARTS_TMP_DIR}/index.yaml ${INDEX_DIR}/index.yaml
 yq -i '.entries.liferay[].urls[] |= sub("-(\d+\.\d+\.\d+)\.tgz", ":$1")' ${INDEX_DIR}/index.yaml
 
 # Copy the markdown files to the gh-pages branch
-find ${SOURCE_DIR} -name "*.md" -exec cp -f '{}' . \;
+find . -name "*.md" -exec rm -f '{}' \;
+cp -R ${SOURCE_DIR}/docs/* ./docs
+cp -R ${SOURCE_DIR}/README.md .
 
 # Diff for observability
 echo "=== Start of Diff ==="
