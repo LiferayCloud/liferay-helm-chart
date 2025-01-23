@@ -12,8 +12,13 @@ config: {}
 Once the file has all the necessary configuration it can be supplied to the helm install command as follows:
 
 ```shell
-helm upgrade -i liferay -n liferay-system --create-namespace -f custom-values.yaml liferay-helm-chart-repo/liferay
+helm upgrade -i liferay -n liferay-system --create-namespace -f custom-values.yaml .
 ```
+
+<!--
+```shell
+helm upgrade -i liferay -n liferay-system --create-namespace -f custom-values.yaml liferay-helm-chart-repo/liferay
+``` -->
 
 ### Disable internal services
 

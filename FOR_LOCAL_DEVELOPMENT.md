@@ -23,11 +23,11 @@ k3d cluster create playground \
 
 It is recommended to install the chart into a custom namespace.
 
-```shell
+<!-- ```shell
 helm upgrade -i liferay -n liferay-system --create-namespace liferay-helm-chart-repo/liferay
 ```
 
-_Or from a local clone of the repository_:
+_Or from a local clone of the repository_: -->
 
 ```shell
 helm upgrade -i liferay -n liferay-system --create-namespace .
