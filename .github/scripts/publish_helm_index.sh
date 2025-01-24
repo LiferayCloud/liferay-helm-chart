@@ -19,6 +19,7 @@ yq -i '.entries.liferay[].urls[] |= sub("-(\d+\.\d+\.\d+)\.tgz", ":$1")' ${INDEX
 
 # Copy the markdown files to the gh-pages branch
 find . -name "*.md" -exec rm -f '{}' \;
+mkdir ./docs 2>/dev/null
 cp -R ${SOURCE_DIR}/docs/* ./docs
 cp -R ${SOURCE_DIR}/README.md .
 
