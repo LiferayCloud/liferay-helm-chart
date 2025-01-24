@@ -1,0 +1,3 @@
+theme: jekyll-theme-minimal
+title: Liferay Helm Chart
+description: A Liferay DXP Helm chart for Kubernetes
