@@ -22,6 +22,7 @@ find . -name "*.md" -exec rm -f '{}' \;
 mkdir ./docs 2>/dev/null
 cp -R ${SOURCE_DIR}/docs/* ./docs
 cp -R ${SOURCE_DIR}/README.md .
+git add --all
 
 # Diff for observability
 echo "=== Start of Diff ==="
