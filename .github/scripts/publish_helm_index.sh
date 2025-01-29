@@ -21,7 +21,7 @@ yq -i '.entries.liferay[].urls[] |= sub("-(\d+\.\d+\.\d+)\.tgz", ":$1")' ${INDEX
 find . -name "*.md" -exec rm -f '{}' \;
 if [ ! -d ./docs ]; then
 	mkdir ./docs
-]
+fi
 cp -R ${SOURCE_DIR}/docs/* ./docs
 cp -R ${SOURCE_DIR}/README.md .
 git add --all
