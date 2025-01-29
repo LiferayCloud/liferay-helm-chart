@@ -28,11 +28,11 @@ git add --all
 
 # Diff for observability
 echo "=== Start of Diff ==="
-git diff
+git -P diff --cached
 echo "=== End of Diff ==="
 
 # Commits need to be signed so we use the gh cli to ensure the changes are signed by `github-actions[bot]`
-CHANGED=($(git diff --name-only | xargs))
+CHANGED=($(git -P diff --cached --name-only | xargs))
 
 for value in "${CHANGED[@]}"
 do
@@ -43,6 +43,7 @@ do
 	fi
 done
 
+COMMAND=$(cat <<EOF
 gh api graphql \
 	-F githubRepository=${GIT_REPOSITORY} \
 	-F branchName=${PUBLISH_BRANCH} \
@@ -51,6 +52,10 @@ gh api graphql \
 	-F "query=@${SOURCE_DIR}/.github/api/createCommitOnBranch.gql" \
 	${ADDITIONS} \
 	${DELETIONS}
+EOF
+)
+
+${COMMAND}
 
 popd >& /dev/null
 rm -rf $tmpDir
