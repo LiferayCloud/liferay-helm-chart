@@ -20,8 +20,24 @@ spec:
         app: {{ $.Chart.Name }}-minio
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: "OnRootMismatch"
       containers:
       - name: {{ $.Chart.Name }}-minio
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsGroup: 1001
+          runAsNonRoot: true
+          runAsUser: 1001
+          seLinuxOptions: {}
+          seccompProfile:
+            type: RuntimeDefault
         env:
           - name: MINIO_API_PORT_NUMBER
             value: {{ default "9000" .config.ports.api | quote }}
@@ -81,8 +97,20 @@ spec:
           successThreshold: 1
           failureThreshold: 3
         volumeMounts:
+        - mountPath: /tmp
+          name: empty-dir
+          subPath: tmp-dir
+        - mountPath: /opt/bitnami/minio/tmp
+          name: empty-dir
+          subPath: app-tmp-dir
+        - mountPath: /.mc
+          name: empty-dir
+          subPath: app-mc-dir
         - mountPath: /bitnami/minio/data
           name: liferay-minio-pvc
+      volumes:
+      - emptyDir: {}
+        name: empty-dir
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
