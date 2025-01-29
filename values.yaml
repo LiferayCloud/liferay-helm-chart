@@ -30,6 +30,10 @@ configmap:
     # license.xml: |
     #   <license>
 
+# Add custom labels to all chart resources
+customLabels:
+  source.repository: github.com/LiferayCloud/liferay-helm-chart
+
 # Use this to pass environment variables directly to the DXP container.
 # See: https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/
 env:
