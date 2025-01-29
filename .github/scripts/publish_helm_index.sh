@@ -36,11 +36,11 @@ CHANGED=($(git diff --name-only | xargs))
 
 for value in "${CHANGED[@]}"
 do
-	fileContent=""
 	if [ -f $value ]; then
-		fileContent=$(base64 -w0 $value)
+		ADDITIONS="${ADDITIONS} -F additions[][path]=$value -F additions[][contents]=$(base64 -w0 $value)"
+	else
+		DELETIONS="${DELETIONS} -F deletions[][path]=$value"
 	fi
-	FILES="${FILES} -F files[][path]=$value -F files[][contents]=${fileContent}"
 done
 
 gh api graphql \
@@ -49,7 +49,8 @@ gh api graphql \
 	-F expectedHeadOid=$(git rev-parse HEAD) \
 	-F commitMessage="github-actions[bot] commit updated helm index" \
 	-F "query=@${SOURCE_DIR}/.github/api/createCommitOnBranch.gql" \
-	${FILES}
+	${ADDITIONS} \
+	${DELETIONS}
 
 popd >& /dev/null
 rm -rf $tmpDir
