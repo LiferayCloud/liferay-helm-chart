@@ -14,26 +14,26 @@ Required tools:
 The simplest and most comprehensive approach is to use K3d because it supports built-in ingress and seamlessly integrates with Docker's hostname resolution for addresses with the suffix `*.docker.localhost`. (not tested on MacOS or Windows yet)
 
 ```shell
-k3d cluster create playground \
-  -p "80:80@loadbalancer" \
-  -p "443:443@loadbalancer" \
+k3d cluster create playground -p "80:80@loadbalancer"
 ```
 
 #### Install the Chart
 
-It is recommended to install the chart into a custom namespace.
-
-<!-- ```shell
-helm upgrade -i liferay -n liferay-system --create-namespace liferay-helm-chart-repo/liferay
-```
-
-_Or from a local clone of the repository_: -->
+It is recommended to install the chart into a custom namespace. In this document the namespace used is `liferay-system`.
 
 ```shell
+helm upgrade -i liferay -n liferay-system --create-namespace liferay/liferay
+```
+
+_The chart can also be installed from a local clone of the repository_:
+
+```shell
+git clone https://github.com/LiferayCloud/liferay-helm-chart.git
+cd liferay-helm-chart
 helm upgrade -i liferay -n liferay-system --create-namespace .
 ```
 
-By default the chart will use the `liferay/dxp:latest` docker image.
+**Note:** By default the chart will use the `liferay/dxp:latest` docker image.
 
 #### Check the Installation Progress
 
@@ -49,7 +49,7 @@ This will log all the output of Liferay DXP (including waiting for it to start).
 
 #### How to Gain Access
 
-There are 3 preset addresses:
+If the value `ingress.enabled` is `true` there should be 3 preset addresses available:
 
 - DXP: http://main.dxp.docker.localhost
 
@@ -67,9 +67,8 @@ There are 3 preset addresses:
 To specify the version of Liferay DXP to deploy supply a value for `image.tag` on the command line
 
 ```shell
-helm upgrade -i liferay -n liferay-system --create-namespace \
-	--set image.tag=2024.q3.13 \
-	.
+helm upgrade -i liferay -n liferay-system --create-namespace liferay/liferay \
+	--set image.tag=2024.q3.13
 ```
 
 ### Additional Virtual Hosts
