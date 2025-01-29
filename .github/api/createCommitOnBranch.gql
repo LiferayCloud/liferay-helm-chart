@@ -3,7 +3,8 @@ mutation (
   $branchName: String!
   $expectedHeadOid: GitObjectID!
   $commitMessage: String!
-  $files: [FileAddition!]!
+  $additions: [FileAddition!]!
+  $deletions: [FileDeletion!]!
 ) {
   createCommitOnBranch(
     input: {
@@ -12,7 +13,7 @@ mutation (
         branchName: $branchName
       }
       message: { headline: $commitMessage }
-      fileChanges: { additions: $files }
+      fileChanges: { additions: $additions, deletions: $deletions }
       expectedHeadOid: $expectedHeadOid
     }
   ) {
