@@ -29,6 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- if .Values.prePopulateDxpData }}
         - name: {{ .Chart.Name }}-pre-populate-dxp-data
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -61,6 +62,7 @@ spec:
           volumeMounts:
           - mountPath: /temp
             name: liferay-working-data-pvc
+        {{- end }}
         - name: {{ .Chart.Name }}-wait-on-services
           image: busybox:latest
           imagePullPolicy: {{ .Values.image.pullPolicy }}

@@ -40,6 +40,16 @@ helm.sh/chart: {{ include "liferay.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- include "liferay.customLabels" . }}
+{{- end }}
+
+{{/*
+Custom labels
+*/}}
+{{- define "liferay.customLabels" -}}
+{{- with .Values.customLabels }}
+{{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
