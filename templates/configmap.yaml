@@ -117,6 +117,9 @@ data:
     indexNamePrefix="liferay-"
     networkHostAddresses=["{{ default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .host }}:{{ .port }}"]
     operationMode="REMOTE"
+    httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
+    authenticationEnabled=B{{ .authenticationEnabled | quote }}
+    username={{ .user | quote }}
     password={{ .password | quote }}
     {{- end }}
 

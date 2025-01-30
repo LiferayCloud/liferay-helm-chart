@@ -129,6 +129,8 @@ elasticsearch:
     password: elasticsearch
     clusterName: liferay_cluster
     host: liferay-elasticsearch
+    authenticationEnabled: false
+    httpSSLEnabled: false
     port: 9200
 
   # Configuration for simplified internal Elasticsearch
