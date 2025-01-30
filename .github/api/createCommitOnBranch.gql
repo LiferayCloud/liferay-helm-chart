@@ -3,8 +3,8 @@ mutation (
   $branchName: String!
   $expectedHeadOid: GitObjectID!
   $commitMessage: String!
-  $additions: [FileAddition!]!
-  $deletions: [FileDeletion!]!
+  $additions: [FileAddition!]
+  $deletions: [FileDeletion!]
 ) {
   createCommitOnBranch(
     input: {

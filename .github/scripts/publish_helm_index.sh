@@ -43,6 +43,13 @@ do
 	fi
 done
 
+if [ -z ${ADDITIONS+x} ]; then
+	ADDITIONS="-F additions[]"
+fi
+if [ -z ${DELETIONS+x} ]; then
+	DELETIONS="-F deletions[]"
+fi
+
 gh api graphql \
 	-F githubRepository=${GIT_REPOSITORY} \
 	-F branchName=${PUBLISH_BRANCH} \
