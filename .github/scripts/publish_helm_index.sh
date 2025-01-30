@@ -43,7 +43,6 @@ do
 	fi
 done
 
-COMMAND=$(cat <<EOF
 gh api graphql \
 	-F githubRepository=${GIT_REPOSITORY} \
 	-F branchName=${PUBLISH_BRANCH} \
@@ -52,10 +51,6 @@ gh api graphql \
 	-F "query=@${SOURCE_DIR}/.github/api/createCommitOnBranch.gql" \
 	${ADDITIONS} \
 	${DELETIONS}
-EOF
-)
-
-${COMMAND}
 
 popd >& /dev/null
 rm -rf $tmpDir
