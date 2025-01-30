@@ -31,6 +31,8 @@ spec:
             value: {{ .config.user }}
           - name: PGUSER
             value: {{ .config.user }}
+          - name: PGDATA
+            value: /var/lib/postgresql/data/db
           {{- with .internal.env }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
