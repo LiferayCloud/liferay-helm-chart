@@ -98,19 +98,17 @@ spec:
           failureThreshold: 3
         volumeMounts:
         - mountPath: /tmp
-          name: empty-dir
+          name: liferay-minio-pvc
           subPath: tmp-dir
         - mountPath: /opt/bitnami/minio/tmp
-          name: empty-dir
+          name: liferay-minio-pvc
           subPath: app-tmp-dir
         - mountPath: /.mc
-          name: empty-dir
+          name: liferay-minio-pvc
           subPath: app-mc-dir
         - mountPath: /bitnami/minio/data
           name: liferay-minio-pvc
-      volumes:
-      - emptyDir: {}
-        name: empty-dir
+          subPath: data-dir
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
