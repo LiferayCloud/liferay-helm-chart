@@ -139,3 +139,15 @@ jobs:
           PUBLISH_BRANCH: gh-pages
           REPO_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           REPOSITORY: ${{ github.event.repository.name }}
+
+      - name: Trigger Deploy GitHub Pages
+        if: ${{ env.PUBLISH == 'true' }}
+        run: |
+          sudo apt-get install -y jq
+
+          ./.github/scripts/publish_helm_index.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_REPOSITORY: ${{ github.repository }}
+          PUBLISH_BRANCH: gh-pages
+          WORKFLOW_NAME: "Deploy GitHub Pages"
