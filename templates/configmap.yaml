@@ -115,7 +115,7 @@ data:
     {{- with .Values.elasticsearch.config }}
     clusterName={{ .clusterName | quote }}
     indexNamePrefix="liferay-"
-    networkHostAddresses=["{{ default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .host }}:{{ .port }}"]
+    networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
     operationMode="REMOTE"
     httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
     authenticationEnabled=B{{ .authenticationEnabled | quote }}
