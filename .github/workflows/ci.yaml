@@ -143,8 +143,6 @@ jobs:
       - name: Trigger Deploy GitHub Pages
         if: ${{ env.PUBLISH == 'true' }}
         run: |
-          sudo apt-get install -y jq
-
           ./.github/scripts/trigger_workflow.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
