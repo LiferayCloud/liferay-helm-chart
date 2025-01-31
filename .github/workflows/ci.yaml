@@ -145,7 +145,7 @@ jobs:
         run: |
           sudo apt-get install -y jq
 
-          ./.github/scripts/publish_helm_index.sh
+          ./.github/scripts/trigger_workflow.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_REPOSITORY: ${{ github.repository }}
