@@ -132,6 +132,7 @@ elasticsearch:
     authenticationEnabled: false
     httpSSLEnabled: false
     port: 9200
+    scheme: http
 
   # Configuration for simplified internal Elasticsearch
   # (primarily used for local development)
