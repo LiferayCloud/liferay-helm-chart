@@ -272,6 +272,10 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# This section lets you speicify custom annotations field on the service manifest
+# Ex: helm --set 'serviceAnnotations.oci\.oraclecloud\.com/load-balancer-type=lb'
+serviceAnnotations: {}
+
 # Tolerations allow the scheduler to schedule pods with matching taints.
 # See: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
 tolerations: []
