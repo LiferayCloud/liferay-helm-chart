@@ -133,6 +133,7 @@ elasticsearch:
     httpSSLEnabled: false
     port: 9200
     scheme: http
+    engine: elasticsearch # vs. opensearch
 
   # Configuration for simplified internal Elasticsearch
   # (primarily used for local development)
