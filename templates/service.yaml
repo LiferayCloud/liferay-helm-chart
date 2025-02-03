@@ -4,7 +4,7 @@ metadata:
   name: {{ include "liferay.fullname" . }}
   labels:
     {{- include "liferay.labels" . | nindent 4 }}
-  {{- with .Values.serviceAnnotations }}
+  {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

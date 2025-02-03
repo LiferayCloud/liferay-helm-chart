@@ -259,6 +259,9 @@ service:
   port: 8080
   debugPort: 8000
   clusterPort: 7800
+  # This section lets you specify custom annotations field on the service manifest
+  # Ex: helm --set 'service.annotations.oci\.oraclecloud\.com/load-balancer-type=lb'
+  annotations: {}
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
@@ -271,10 +274,6 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
-# This section lets you speicify custom annotations field on the service manifest
-# Ex: helm --set 'serviceAnnotations.oci\.oraclecloud\.com/load-balancer-type=lb'
-serviceAnnotations: {}
 
 # Tolerations allow the scheduler to schedule pods with matching taints.
 # See: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
