@@ -259,6 +259,9 @@ service:
   port: 8080
   debugPort: 8000
   clusterPort: 7800
+  # This section lets you specify custom annotations field on the service manifest
+  # Ex: helm --set 'service.annotations.oci\.oraclecloud\.com/load-balancer-type=lb'
+  annotations: {}
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
