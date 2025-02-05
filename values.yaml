@@ -125,6 +125,10 @@ postgres:
 search:
   # Configuration values (used with or without the embedded search)
   config:
+    # Note that when using 'opensearch' additional modules need to be added to the Liferay container.
+    # See https://learn.liferay.com/w/dxp/using-search/installing-and-upgrading-a-search-engine/opensearch/installing-opensearch
+    engine: elasticsearch # or opensearch
+
     user: search
     password: search
     clusterName: liferay_cluster
@@ -133,7 +137,6 @@ search:
     httpSSLEnabled: false
     port: 9200
     scheme: http
-    engine: elasticsearch # vs. opensearch
     mtls:
       enabled: false
       truststorePassword: "certpass"
