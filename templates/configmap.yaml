@@ -26,23 +26,35 @@ data:
     #
     # Search
     #
-    {{- with .Values.elasticsearch.config }}
+    {{- with .Values.search.config }}
     {{- if eq .engine "opensearch" }}
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_active=B"true"
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_authenticationEnabled=B{{ .authenticationEnabled | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_username={{ .user | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_password={{ .password | quote }}
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_logExceptionsOnly=B"false"
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_password={{ .password | quote }}
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_remoteClusterConnectionId="REMOTE"
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_username={{ .user | quote }}
+    {{- if and .mtls .mtls.enabled }}
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststorePassword={{ .mtls.truststorePassword | quote }}
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststorePath={{ .mtls.truststorePath | quote }}
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststoreType={{ .mtls.truststoreType | quote }}
+    {{- end }}
     {{- else }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_clusterName={{ .clusterName | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_indexNamePrefix="liferay-"
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_operationMode="REMOTE"
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_authenticationEnabled=B{{ .authenticationEnabled | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_username={{ .user | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_clusterName={{ .clusterName | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_indexNamePrefix="liferay-"
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_operationMode="REMOTE"
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_password={{ .password | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_username={{ .user | quote }}
+    {{- if and .mtls .mtls.enabled }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststorePassword={{ .mtls.truststorePassword | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststorePath={{ .mtls.truststorePath | quote }}
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststoreType={{ .mtls.truststoreType | quote }}
+    {{- end }}
     {{- end }}
     {{- end }}
 
@@ -100,8 +112,16 @@ data:
 
     configuration.override.com.liferay.portal.component.blacklist.internal.configuration.ComponentBlacklistConfiguration_blacklistComponentNames=[\
       "com.liferay.portal.store.s3.IBMS3Store"\
-      {{- if eq .Values.elasticsearch.config.engine "opensearch" }}
-      ,"com.liferay.portal.search.elasticsearch7.internal.ElasticsearchSearchEngine"\
+    ]
+
+    configuration.override.com.liferay.portal.bundle.blacklist.internal.configuration.BundleBlacklistConfiguration_blacklistBundleSymbolicNames=[\
+      {{- if eq .Values.search.config.engine "opensearch" }}
+      "com.liferay.portal.search.elasticsearch.cross.cluster.replication.impl"\
+      ,"com.liferay.portal.search.elasticsearch.monitoring.web"\
+      ,"com.liferay.portal.search.elasticsearch7.api"\
+      ,"com.liferay.portal.search.elasticsearch7.impl"\
+      ,"com.liferay.portal.search.learning.to.rank.api"\
+      ,"com.liferay.portal.search.learning.to.rank.impl"\
       {{- end }}
     ]
 

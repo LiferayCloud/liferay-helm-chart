@@ -35,18 +35,6 @@ helm upgrade -i liferay -n liferay-system --create-namespace .
 
 **Note:** By default the chart will use the `liferay/dxp:latest` docker image.
 
-#### Check the Installation Progress
-
-There are many moving parts (including downloading the Liferay DXP image) and so it will take several seconds (up to several minutes) before the system is fully working.
-
-I recommend using the following command (which you can run immediately after the helm command completes):
-
-```shell
-sterm -n liferay-system liferay-0
-```
-
-This will log all the output of Liferay DXP (including waiting for it to start).
-
 #### How to Gain Access
 
 If the value `ingress.enabled` is `true` there should be 3 preset addresses available:
@@ -62,16 +50,17 @@ If the value `ingress.enabled` is `true` there should be 3 preset addresses avai
 
   The default user name and password are `minio` : `miniominio`.
 
-#### Specify a version of Liferay DXP
+#### Basic Observation of the Chart
 
-To specify the version of Liferay DXP to deploy supply a value for `image.tag` on the command line
+If you want to watch the progress of the chart the following simple command works well:
 
 ```shell
-helm upgrade -i liferay -n liferay-system --create-namespace liferay/liferay \
-	--set image.tag=2024.q3.13
+watch -n .5 kubectl get -n liferay-system all,svc,cm,pvc,ingress
 ```
 
-### Additional Virtual Hosts
+As resources come, go and update their status the output will adjust accordingly.
+
+#### Additional Virtual Hosts
 
 If you create additional virtual instances in DXP select a hostname deriving from `*.dxp.docker.localhost` and specify that value for each of **WebId**, **Virtual Host** and **Mail Domain**. Once the Virtual Instance is created that host should be reachable without further action.
 
@@ -82,36 +71,4 @@ e.g. create a new host using:
 - **Mail Domain**: `two.dxp.docker.localhost`
 - Wait for completion then access the virtual instance at http://two.dxp.docker.localhost
 
-## Uninstallation
-
-If all you want to do is update the chart, simply execute the install instruction above.
-
-However, to uninstall the chart simply do:
-
-```shell
-helm uninstall -n liferay-system liferay
-```
-
-### Starting from Scratch
-
-Starting from scratch involves also removing all the storage volumes.
-
-First uninstall the chart as above. Then remove all the persistent volumes (which destroys all the data):
-
-```shell
-k delete -n liferay-system persistentvolumeclaims \
-  liferay-elasticsearch-pvc-liferay-elasticsearch-0 \
-  liferay-minio-pvc-liferay-minio-0 \
-  liferay-postgres-pvc-liferay-postgres-0 \
-  liferay-working-data-pvc-liferay-0
-```
-
-## Basic Observation of the Chart
-
-If you want to watch the progress of the chart the following simple command works well:
-
-```shell
-watch -n .5 kubectl get -n liferay-system all,svc,cm,pvc,ingress
-```
-
-As resources come, go and update their status the output will adjust accordingly.
+### [Recipes](RECIPES.md)

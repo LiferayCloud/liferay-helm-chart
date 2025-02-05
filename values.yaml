@@ -120,33 +120,41 @@ postgres:
     env: {}
 
 #
-# Elasticsearch
+# Search
 #
-elasticsearch:
-  # Configuration values (used with or without the embedded elasticsearch)
+search:
+  # Configuration values (used with or without the embedded search)
   config:
-    user: elasticsearch
-    password: elasticsearch
+    # Note that when using 'opensearch' additional modules need to be added to the Liferay container.
+    # See https://learn.liferay.com/w/dxp/using-search/installing-and-upgrading-a-search-engine/opensearch/installing-opensearch
+    engine: elasticsearch # or opensearch
+
+    user: search
+    password: search
     clusterName: liferay_cluster
-    host: liferay-elasticsearch
+    host: liferay-search
     authenticationEnabled: false
     httpSSLEnabled: false
     port: 9200
     scheme: http
-    engine: elasticsearch # vs. opensearch
+    mtls:
+      enabled: false
+      truststorePassword: "certpass"
+      truststorePath: "/path/to/certs/truststore.p12"
+      truststoreType: "pkcs12"
 
-  # Configuration for simplified internal Elasticsearch
+  # Configuration for simplified internal search
   # (primarily used for local development)
   internal:
     enabled: true
 
-    # Set the number of elasticsearch replicas (0 or 1 for now)
+    # Set the number of search replicas (0 or 1 for now)
     replicaCount: 1
 
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi
 
-    # Set the elasticsearch image to use.
+    # Set the search image to use.
     image:
       repository: elasticsearch
       tag: "8.17.0"
