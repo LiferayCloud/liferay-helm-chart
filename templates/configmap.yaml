@@ -59,10 +59,10 @@ data:
     {{- end }}
 
     #
-    # Amazon S3 (uses MinIO when `s3.internal.enabled=true`)
+    # Object (File) Storage
     #
-    dl.store.impl=com.liferay.portal.store.s3.S3Store
-    {{- with .Values.s3.config }}
+    {{- with .Values.objectstorage.config }}
+    dl.store.impl={{ .dlStoreImpl }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_accessKey={{ .user | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_bucketName={{ .buckets | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_connectionProtocol={{ .scheme | upper | quote }}
@@ -70,7 +70,7 @@ data:
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_corePoolSize=i{{ .corePoolSize | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxConnections=i{{ .httpClientMaxConnections | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxErrorRetry=B{{ .httpClientMaxErrorRetry | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ default (printf "%s-minio" (include "liferay.fullname" $)) .host }}:{{ .ports.api }}"
+    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .host }}:{{ .ports.api }}"
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3PathStyle=B{{ .pathStyle | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Region={{ .region | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_secretKey={{ .password | quote }}
