@@ -14,11 +14,11 @@ data:
     include-and-override=portal-custom.properties
 
     #
-    # PostgreSQL
+    # Database
     #
-    jdbc.default.driverClassName=org.postgresql.Driver
-    {{- with .Values.postgres.config }}
-    jdbc.default.url=jdbc:postgresql://{{ default (printf "%s-postgres" (include "liferay.fullname" $)) .host }}:{{ .port }}/{{ .database }}?{{ .parameters }}
+    {{- with .Values.database.config }}
+    jdbc.default.driverClassName={{ default "org.postgresql.Driver" .jdbc.driverClassName }}
+    jdbc.default.url=jdbc:{{ default "postgresql" .jdbc.scheme }}://{{ default (printf "%s-database" (include "liferay.fullname" $)) .host }}:{{ default "5432" .port }}/{{ .database }}?{{ .parameters }}
     jdbc.default.username={{ .user }}
     jdbc.default.password={{ .password }}
     {{- end }}
