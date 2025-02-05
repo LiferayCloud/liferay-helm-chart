@@ -28,8 +28,8 @@ First uninstall the chart as above. Then remove all the persistent volumes (whic
 
 ```shell
 k delete -n liferay-system pvc \
-  liferay-search-pvc-liferay-search-0 \
-  liferay-minio-pvc-liferay-minio-0 \
   liferay-database-pvc-liferay-database-0 \
+  liferay-objectstorage-pvc-liferay-objectstorage-0 \
+  liferay-search-pvc-liferay-search-0 \
   liferay-working-data-pvc-liferay-0
 ```

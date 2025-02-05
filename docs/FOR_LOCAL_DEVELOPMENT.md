@@ -43,12 +43,12 @@ If the value `ingress.enabled` is `true` there should be 3 preset addresses avai
 
   The default user name and password are `test@main.dxp.docker.localhost` : `test`.
 
-- MinIO (S3 Server):
+- Object Storage (MinIO Server - S3):
 
-  - Console: http://console.minio.docker.localhost
-  - API: http://console.minio.docker.localhost
+  - Console: http://console.objectstorage.docker.localhost
+  - API: http://console.objectstorage.docker.localhost
 
-  The default user name and password are `minio` : `miniominio`.
+  The default user name and password are `objectstorage` : `objectstorage`.
 
 #### Basic Observation of the Chart
 

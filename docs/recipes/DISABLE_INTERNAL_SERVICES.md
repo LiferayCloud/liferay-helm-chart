@@ -8,10 +8,10 @@ Disable the internal services as follows (each one can be individually disabled)
 database:
   internal:
     enabled: false
-search:
+objectstorage:
   internal:
     enabled: false
-s3:
+search:
   internal:
     enabled: false
 ```

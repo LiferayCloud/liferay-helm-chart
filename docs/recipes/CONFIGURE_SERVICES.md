@@ -3,14 +3,6 @@
 Services can be configured as follows:
 
 ```yaml
-search:
-  config:
-    clusterName: <cluster_name>
-    host: <host>
-    password: <password>
-    port: <port>
-    user: <username>
-
 database:
   config:
     database: <database>
@@ -20,7 +12,7 @@ database:
     port: <port>
     user: <username>
 
-s3:
+objectstorage:
   config:
     user: <username>
     password: <password>
@@ -31,4 +23,12 @@ s3:
     pathStyle: <true|false>
     ports:
       api: <api_port>
+
+search:
+  config:
+    clusterName: <cluster_name>
+    host: <host>
+    password: <password>
+    port: <port>
+    user: <username>
 ```

@@ -166,38 +166,39 @@ search:
     env: {}
 
 #
-# S3 Object storage (MinIO)
+# Object (File) Storage
 #
-s3:
-  # Configuration values (used with or without the embedded MinIO)
+objectstorage:
+  # Configuration values for object storage
   config:
-    user: minio
-    password: miniominio
-    buckets: doclib
-    host: liferay-minio
-    region: us-west-1
-    scheme: http
+    buckets: objectstorage
     corePoolSize: 3
     connectionTimeout: 20
+    dlStoreImpl: com.liferay.portal.store.s3.S3Store
     httpClientMaxConnections: 10
     httpClientMaxErrorRetry: 3
+    host: liferay-objectstorage
+    password: objectstorage
     pathStyle: true
     ports:
       api: 9000
       console: 9001
+    region: us-west-1
+    scheme: http
+    user: objectstorage
 
-  # Configuration for simplified internal MinIO
+  # Configuration for simplified internal objectstorage
   # (primarily used for local development)
   internal:
     enabled: true
 
-    # Set the number of minio replicas (0 or 1 for now)
+    # Set the number of objectstorage replicas (0 or 1 for now)
     replicaCount: 1
 
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi
 
-    # Set the minio image to use.
+    # Set the objectstorage image to use.
     image:
       repository: bitnami/minio
       tag: "2024"
@@ -211,12 +212,12 @@ s3:
       className: ""
       annotations: {}
       hosts:
-        - host: "api.minio.docker.localhost"
+        - host: "api.objectstorage.docker.localhost"
           paths:
             - path: /
               pathType: ImplementationSpecific
               backendServicePortName: api
-        - host: "console.minio.docker.localhost"
+        - host: "console.objectstorage.docker.localhost"
           paths:
             - path: /
               pathType: ImplementationSpecific

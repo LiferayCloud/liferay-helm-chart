@@ -64,11 +64,11 @@ spec:
               touch /temp/liferay/.db.init
               {{- end }}
 
-              {{- if not .Values.s3.internal.enabled }}
-              if [ ! -e /temp/liferay/.s3.init ]; then
+              {{- if not .Values.objectstorage.internal.enabled }}
+              if [ ! -e /temp/liferay/.objectstorage.init ]; then
                 cp -rv /opt/liferay/data/document_library /temp/liferay/data
               fi
-              touch /temp/liferay/.s3.init
+              touch /temp/liferay/.objectstorage.init
               {{- end }}
 
               {{- if not .Values.search.internal.enabled }}
@@ -100,9 +100,9 @@ spec:
               done
               {{- end }}
 
-              {{- if .Values.s3.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-minio" (include "liferay.fullname" $)) .Values.s3.config.host }} {{ .Values.s3.config.ports.api }}; do
-                echo "Waiting for S3 service"
+              {{- if .Values.objectstorage.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .Values.objectstorage.config.host }} {{ .Values.objectstorage.config.ports.api }}; do
+                echo "Waiting for Object Storage service"
                 sleep 2
               done
               {{- end }}
