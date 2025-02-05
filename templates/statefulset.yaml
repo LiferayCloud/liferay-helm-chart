@@ -82,6 +82,9 @@ spec:
           - mountPath: /temp
             name: liferay-working-data-pvc
         {{- end }}
+        {{- with .Values.initContainers -}}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
         - name: {{ .Chart.Name }}-wait-on-services
           image: busybox:latest
           imagePullPolicy: {{ .Values.image.pullPolicy }}
