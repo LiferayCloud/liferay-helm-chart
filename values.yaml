@@ -134,6 +134,11 @@ elasticsearch:
     port: 9200
     scheme: http
     engine: elasticsearch # vs. opensearch
+    mtls:
+      enabled: false
+      truststorePassword: "certpass"
+      truststorePath: "/path/to/certs/truststore.p12"
+      truststoreType: "pkcs12"
 
   # Configuration for simplified internal Elasticsearch
   # (primarily used for local development)
