@@ -1,27 +1,27 @@
-{{- if .Values.postgres.internal.enabled }}
-{{- with .Values.postgres }}
+{{- if .Values.database.internal.enabled }}
+{{- with .Values.database }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "liferay.fullname" $ }}-postgres
+  name: {{ include "liferay.fullname" $ }}-database
   labels:
-    app: {{ $.Chart.Name }}-postgres
+    app: {{ $.Chart.Name }}-database
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   replicas: {{ .internal.replicaCount }}
   selector:
     matchLabels:
-      app: {{ $.Chart.Name }}-postgres
+      app: {{ $.Chart.Name }}-database
       {{- include "liferay.selectorLabels" $ | nindent 6 }}
-  serviceName: {{ include "liferay.fullname" $ }}-postgres
+  serviceName: {{ include "liferay.fullname" $ }}-database
   template:
     metadata:
       labels:
-        app: {{ $.Chart.Name }}-postgres
+        app: {{ $.Chart.Name }}-database
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
       containers:
-      - name: {{ $.Chart.Name }}-postgres
+      - name: {{ $.Chart.Name }}-database
         env:
           - name: POSTGRES_DB
             value: {{ .config.database }}
@@ -36,13 +36,13 @@ spec:
           {{- with .internal.env }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        image: {{ printf "%s:%s" (default "postgres" .internal.image.repository) ((default "16" .internal.image.tag) | toString) }}
+        image: {{ printf "%s:%s" (default "database" .internal.image.repository) ((default "16" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
           exec:
             command: ["sh", "-c", "pg_isready", "-U", "$POSTGRES_USER"]
         ports:
-        - name: postgres
+        - name: database
           containerPort: {{ default "5432" .config.port }}
           protocol: TCP
         readinessProbe:
@@ -50,12 +50,12 @@ spec:
             command: ["sh", "-c", "pg_isready", "-U", "$POSTGRES_USER"]
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
-          name: liferay-postgres-pvc
+          name: liferay-database-pvc
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-postgres-pvc
+      name: liferay-database-pvc
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
@@ -65,37 +65,37 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "liferay.fullname" $ }}-postgres
+  name: {{ include "liferay.fullname" $ }}-database
   labels:
-    app: {{ $.Chart.Name }}-postgres
+    app: {{ $.Chart.Name }}-database
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   selector:
-    app: {{ $.Chart.Name }}-postgres
+    app: {{ $.Chart.Name }}-database
     {{- include "liferay.labels" $ | nindent 4 }}
   ports:
-  - name: postgres
+  - name: database
     port: {{ .config.port }}
-    targetPort: postgres
+    targetPort: database
     protocol: TCP
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "liferay.fullname" $ }}-postgres-headless
+  name: {{ include "liferay.fullname" $ }}-database-headless
   labels:
-    app: {{ $.Chart.Name }}-postgres
+    app: {{ $.Chart.Name }}-database
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   clusterIP: None # This is what makes it headless
   selector:
-    app: {{ $.Chart.Name }}-postgres
+    app: {{ $.Chart.Name }}-database
     {{- include "liferay.labels" $ | nindent 4 }}
   ports:
-  - name: postgres
+  - name: database
     port: {{ .config.port }}
-    targetPort: postgres
+    targetPort: database
     protocol: TCP
 {{- end }}
 {{- end }}

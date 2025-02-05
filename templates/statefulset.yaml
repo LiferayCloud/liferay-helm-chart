@@ -57,7 +57,7 @@ spec:
             - |
               mkdir -p /temp/liferay/data
 
-              {{- if not .Values.postgres.internal.enabled }}
+              {{- if not .Values.database.internal.enabled }}
               if [ ! -e /temp/liferay/.db.init ]; then
                 cp -rv /opt/liferay/data/hypersonic /temp/liferay/data
               fi
@@ -93,9 +93,9 @@ spec:
             - |
               trap 'echo "Received signal to Terminate"; exit 0' SIGINT SIGTERM
 
-              {{- if .Values.postgres.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-postgres" (include "liferay.fullname" $)) .Values.postgres.config.host }} {{ .Values.postgres.config.port }}; do
-                echo "Waiting for Postgres service"
+              {{- if .Values.database.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-database" (include "liferay.fullname" $)) .Values.database.config.host }} {{ .Values.database.config.port }}; do
+                echo "Waiting for Database service"
                 sleep 2
               done
               {{- end }}

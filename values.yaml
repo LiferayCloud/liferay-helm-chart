@@ -87,31 +87,34 @@ volumeMounts:
 #### Setup dependent services
 
 #
-# PostgreSQL DB
+# Database
 #
-postgres:
-  # Configuration values (used with or without the embedded postgres)
+database:
+  # Configuration values (used with or without the embedded database)
   config:
-    user: postgres
-    password: postgres
+    user: database
+    password: database
     database: lportal
-    host: liferay-postgres
+    host: liferay-database
     port: 5432
-    # JDBC Connection string parameters
-    parameters: "useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false"
+    # JDBC Connect String format: jdbc:{scheme}://{host}:{port}/{database}?{parameters}
+    jdbc:
+      driverClassName: org.postgresql.Driver
+      parameters: "useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false"
+      scheme: postgresql
 
-  # Configuration for simplified internal Postgres
+  # Configuration for simplified internal database
   # (primarily used for local development)
   internal:
     enabled: true
 
-    # Set the number of postgres replicas (0 or 1 for now)
+    # Set the number of database replicas (0 or 1 for now)
     replicaCount: 1
 
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi
 
-    # Set the postgres image to use.
+    # Set the database image to use.
     image:
       repository: postgres
       tag: 16

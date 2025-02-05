@@ -11,7 +11,7 @@ search:
     port: <port>
     user: <username>
 
-postgres:
+database:
   config:
     database: <database>
     host: <host>

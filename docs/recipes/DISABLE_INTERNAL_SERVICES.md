@@ -5,7 +5,7 @@ It is often necessary to disable the internally defined Database, Search and Obj
 Disable the internal services as follows (each one can be individually disabled):
 
 ```yaml
-postgres:
+database:
   internal:
     enabled: false
 search:
