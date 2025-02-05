@@ -1,23 +1,23 @@
-{{- if .Values.elasticsearch.internal.enabled }}
-{{- with .Values.elasticsearch }}
+{{- if .Values.search.internal.enabled }}
+{{- with .Values.search }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "liferay.fullname" $ }}-elasticsearch
+  name: {{ include "liferay.fullname" $ }}-search
   labels:
-    app: {{ $.Chart.Name }}-elasticsearch
+    app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   replicas: {{ .internal.replicaCount }}
   selector:
     matchLabels:
-      app: {{ $.Chart.Name }}-elasticsearch
+      app: {{ $.Chart.Name }}-search
       {{- include "liferay.selectorLabels" $ | nindent 6 }}
-  serviceName: {{ include "liferay.fullname" $ }}-elasticsearch
+  serviceName: {{ include "liferay.fullname" $ }}-search
   template:
     metadata:
       labels:
-        app: {{ $.Chart.Name }}-elasticsearch
+        app: {{ $.Chart.Name }}-search
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
       initContainers:
@@ -32,7 +32,7 @@ spec:
           securityContext:
             privileged: true
         - name: install-plugins
-          image:  {{ printf "%s:%s" (default "elasticsearch" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
+          image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command:
             - 'sh'
@@ -51,13 +51,13 @@ spec:
               find . -mtime -1 -ls
           volumeMounts:
             - mountPath: /usr/share/elasticsearch/plugins
-              name: liferay-elasticsearch-pvc
+              name: liferay-search-pvc
               subPath: plugins
             - mountPath: /usr/share/elasticsearch/_config
-              name: liferay-elasticsearch-pvc
+              name: liferay-search-pvc
               subPath: config
       containers:
-      - name: {{ $.Chart.Name }}-elasticsearch
+      - name: {{ $.Chart.Name }}-search
         env:
           - name: xpack.security.enabled
             value: "false"
@@ -76,30 +76,30 @@ spec:
           {{- with .internal.env }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        image:  {{ printf "%s:%s" (default "elasticsearch" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
+        image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
           tcpSocket:
             port: rest
         ports:
-          - name: elasticsearch
+          - name: search
             containerPort: {{ default "9200" .config.port }}
             protocol: TCP
         readinessProbe:
           tcpSocket:
-            port: elasticsearch
+            port: search
         volumeMounts:
           - mountPath: /usr/share/elasticsearch/config
-            name: liferay-elasticsearch-pvc
+            name: liferay-search-pvc
             subPath: config
           - mountPath: /usr/share/elasticsearch/data
-            name: liferay-elasticsearch-pvc
+            name: liferay-search-pvc
             subPath: data
           - mountPath: /usr/share/elasticsearch/logs
-            name: liferay-elasticsearch-pvc
+            name: liferay-search-pvc
             subPath: logs
           - mountPath: /usr/share/elasticsearch/plugins
-            name: liferay-elasticsearch-pvc
+            name: liferay-search-pvc
             subPath: plugins
       securityContext:
         fsGroup: 1000
@@ -107,7 +107,7 @@ spec:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-elasticsearch-pvc
+      name: liferay-search-pvc
     spec:
       accessModes: ["ReadWriteOnce"]
       resources:
@@ -117,37 +117,37 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "liferay.fullname" $ }}-elasticsearch
+  name: {{ include "liferay.fullname" $ }}-search
   labels:
-    app: {{ $.Chart.Name }}-elasticsearch
+    app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   selector:
-    app: {{ $.Chart.Name }}-elasticsearch
+    app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
   ports:
-  - name: elasticsearch
+  - name: search
     port: {{ .config.port }}
-    targetPort: elasticsearch
+    targetPort: search
     protocol: TCP
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "liferay.fullname" $ }}-elasticsearch-headless
+  name: {{ include "liferay.fullname" $ }}-search-headless
   labels:
-    app: {{ $.Chart.Name }}-elasticsearch
+    app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
 spec:
   clusterIP: None # This is what makes it headless
   selector:
-    app: {{ $.Chart.Name }}-elasticsearch
+    app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
   ports:
-  - name: elasticsearch
+  - name: search
     port: {{ .config.port }}
-    targetPort: elasticsearch
+    targetPort: search
     protocol: TCP
 {{- end }}
 {{- end }}

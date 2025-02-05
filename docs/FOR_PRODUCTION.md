@@ -21,7 +21,7 @@ helm upgrade -i liferay -n liferay-system --create-namespace liferay/liferay \
 It is often necessary to disable the internally defined Postgres, Elasticsearch and MinIO services in order to use externally configured versions.
 
 ```yaml
-elasticsearch:
+search:
   internal:
     enabled: false
 postgres:
@@ -37,7 +37,7 @@ s3:
 It is still necessary to provide Liferay DXP with appropriate services:
 
 ```yaml
-elasticsearch:
+search:
   internal:
     enabled: false
   config:

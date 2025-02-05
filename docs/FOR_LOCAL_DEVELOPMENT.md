@@ -100,7 +100,7 @@ First uninstall the chart as above. Then remove all the persistent volumes (whic
 
 ```shell
 k delete -n liferay-system persistentvolumeclaims \
-  liferay-elasticsearch-pvc-liferay-elasticsearch-0 \
+  liferay-search-pvc-liferay-search-0 \
   liferay-minio-pvc-liferay-minio-0 \
   liferay-postgres-pvc-liferay-postgres-0 \
   liferay-working-data-pvc-liferay-0

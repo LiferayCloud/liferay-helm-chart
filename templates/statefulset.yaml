@@ -71,7 +71,7 @@ spec:
               touch /temp/liferay/.s3.init
               {{- end }}
 
-              {{- if not .Values.elasticsearch.internal.enabled }}
+              {{- if not .Values.search.internal.enabled }}
               if [ ! -e /temp/liferay/.es.init ]; then
                 cp -rv /opt/liferay/data/elasticsearch7 /temp/liferay/data
               fi
@@ -107,9 +107,9 @@ spec:
               done
               {{- end }}
 
-              {{- if .Values.elasticsearch.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-elasticsearch" (include "liferay.fullname" $)) .Values.elasticsearch.config.host }} {{ .Values.elasticsearch.config.port }}; do
-                echo "Waiting for Elasticsearch service"
+              {{- if .Values.search.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-search" (include "liferay.fullname" $)) .Values.search.config.host }} {{ .Values.search.config.port }}; do
+                echo "Waiting for Search service"
                 sleep 2
               done
               {{- end }}
