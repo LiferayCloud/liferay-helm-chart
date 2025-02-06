@@ -88,6 +88,10 @@ spec:
         readinessProbe:
           tcpSocket:
             port: search
+        {{- with .internal.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
         volumeMounts:
           - mountPath: /usr/share/elasticsearch/config
             name: liferay-search-pvc

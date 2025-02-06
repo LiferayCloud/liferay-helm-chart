@@ -111,6 +111,10 @@ database:
     # Set the number of database replicas (0 or 1 for now)
     replicaCount: 1
 
+    # This is for setting the resource requests and limits of the pods.
+    # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi
 
@@ -154,6 +158,10 @@ search:
     # Set the number of search replicas (0 or 1 for now)
     replicaCount: 1
 
+    # This is for setting the resource requests and limits of the pods.
+    # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi
 
@@ -194,6 +202,10 @@ objectstorage:
 
     # Set the number of objectstorage replicas (0 or 1 for now)
     replicaCount: 1
+
+    # This is for setting the resource requests and limits of the pods.
+    # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
 
     # Set the amount of storage requested by the PersistentVolumeClaim
     storage: 1Gi

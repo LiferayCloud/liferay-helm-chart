@@ -48,6 +48,10 @@ spec:
         readinessProbe:
           exec:
             command: ["sh", "-c", "pg_isready", "-U", "$POSTGRES_USER"]
+        {{- with .internal.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: liferay-database-pvc
