@@ -80,7 +80,7 @@ spec:
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
           tcpSocket:
-            port: rest
+            port: search
         ports:
           - name: search
             containerPort: {{ default "9200" .config.port }}
