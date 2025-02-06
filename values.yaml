@@ -227,6 +227,28 @@ objectstorage:
       #    hosts:
       #      - chart-example.local
 
+livenessProbe:
+  httpGet:
+    path: /c/portal/robots
+    port: http
+  failureThreshold: 2
+  initialDelaySeconds: 10
+  periodSeconds: 5
+readinessProbe:
+  httpGet:
+    path: /c/portal/robots
+    port: http
+  failureThreshold: 2
+  initialDelaySeconds: 10
+  periodSeconds: 5
+startupProbe:
+  httpGet:
+    path: /c/portal/robots
+    port: http
+  failureThreshold: 30
+  initialDelaySeconds: 20
+  periodSeconds: 5
+
 ################################################################################
 #### Less common fine tuning options ###########################################
 ################################################################################

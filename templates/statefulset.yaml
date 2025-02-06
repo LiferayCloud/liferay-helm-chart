@@ -142,20 +142,18 @@ spec:
             - name: cluster
               containerPort: {{ .Values.service.clusterPort }}
               protocol: TCP
+          {{- with .Values.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /c/portal/robots
-              port: http
-            failureThreshold: 20
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /c/portal/robots
-              port: http
-            failureThreshold: 20
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
