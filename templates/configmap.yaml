@@ -70,7 +70,7 @@ data:
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_corePoolSize=i{{ .corePoolSize | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxConnections=i{{ .httpClientMaxConnections | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxErrorRetry=B{{ .httpClientMaxErrorRetry | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .host }}:{{ .ports.api }}"
+    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ printf "%s%s" (default (printf "%s-objectstorage" (include "liferay.fullname" $)) .host)  (ternary "" (printf ":%d" (.ports.api | int)) (empty .ports.api)) }}"
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3PathStyle=B{{ .pathStyle | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Region={{ .region | quote }}
     configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_secretKey={{ .password | quote }}
