@@ -96,6 +96,10 @@ spec:
           timeoutSeconds: 10
           successThreshold: 1
           failureThreshold: 3
+        {{- with .internal.resources }}
+        resources:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
         volumeMounts:
         - mountPath: /tmp
           name: liferay-objectstorage-pvc
