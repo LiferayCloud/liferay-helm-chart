@@ -27,19 +27,19 @@ spec:
       containers:
       - name: {{ $.Chart.Name }}-database
         env:
-          - name: POSTGRES_DB
-            value: {{ .config.database }}
-          - name: POSTGRES_PASSWORD
-            value: {{ .config.password }}
-          - name: POSTGRES_USER
-            value: {{ .config.user }}
-          - name: PGUSER
-            value: {{ .config.user }}
-          - name: PGDATA
-            value: /var/lib/postgresql/data/db
-          {{- with .internal.env }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
+        - name: POSTGRES_DB
+          value: {{ .config.database }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .config.password }}
+        - name: POSTGRES_USER
+          value: {{ .config.user }}
+        - name: PGUSER
+          value: {{ .config.user }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/db
+        {{- with .internal.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         image: {{ printf "%s:%s" (default "database" .internal.image.repository) ((default "16" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
