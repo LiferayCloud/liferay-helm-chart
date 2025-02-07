@@ -134,6 +134,10 @@ spec:
         fsGroup: 1001
         fsGroupChangePolicy: "OnRootMismatch"
       serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
+      {{- with .internal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:

@@ -127,6 +127,10 @@ spec:
       securityContext:
         fsGroup: 1000
       serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
+      {{- with .internal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
