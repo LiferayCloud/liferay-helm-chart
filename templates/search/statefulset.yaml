@@ -62,16 +62,16 @@ spec:
         {{- end }}
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/config
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: config
         - mountPath: /usr/share/elasticsearch/data
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: data
         - mountPath: /usr/share/elasticsearch/logs
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: logs
         - mountPath: /usr/share/elasticsearch/plugins
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: plugins
       {{- with .internal.imagePullSecrets }}
       imagePullSecrets:
@@ -108,10 +108,10 @@ spec:
           find . -mtime -1 -ls
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/plugins
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: plugins
         - mountPath: /usr/share/elasticsearch/_config
-          name: liferay-search-pvc
+          name: {{ include "liferay.fullname" $ }}-search-pvc
           subPath: config
       {{- with .internal.initContainers -}}
       {{ toYaml . | nindent 6 }}
@@ -135,7 +135,7 @@ spec:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-search-pvc
+      name: {{ include "liferay.fullname" $ }}-search-pvc
     spec:
       accessModes: ["ReadWriteOnce"]
       resources:

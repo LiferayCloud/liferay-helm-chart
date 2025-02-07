@@ -82,37 +82,37 @@ spec:
         # Mounts for liferay working directories allowing the
         # container's root file system to remain readonly.
         - mountPath: /opt/liferay/data
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/data
         - mountPath: /opt/liferay/deploy
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/deploy
         - mountPath: /opt/liferay/logs
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/logs
         - mountPath: /opt/liferay/tomcat/temp
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: tomcat/temp
         - mountPath: /opt/liferay/tomcat/logs
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: tomcat/logs
         - mountPath: /opt/liferay/tomcat/work
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: tomcat/work
         - mountPath: /opt/liferay/osgi/modules
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: osgi/modules
         - mountPath: /opt/liferay/osgi/state
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: osgi/state
         - mountPath: /opt/liferay/reports
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/reports
         - mountPath: /opt/liferay/routes
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/routes
         - mountPath: /opt/liferay/liferay.pid
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
           subPath: liferay/liferay.pid
 
         # Mounted configuration files
@@ -166,7 +166,7 @@ spec:
           cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
         volumeMounts:
         - mountPath: /temp
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
       {{- if .Values.prePopulateDxpData }}
       - name: {{ .Chart.Name }}-pre-populate-dxp-data
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -199,7 +199,7 @@ spec:
 
         volumeMounts:
         - mountPath: /temp
-          name: liferay-working-data-pvc
+          name: {{ include "liferay.fullname" $ }}-pvc
       {{- end }}
       {{- with .Values.initContainers -}}
       {{ toYaml . | nindent 6 }}
@@ -261,7 +261,7 @@ spec:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-working-data-pvc
+      name: {{ include "liferay.fullname" $ }}-pvc
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

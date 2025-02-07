@@ -103,16 +103,16 @@ spec:
         {{- end }}
         volumeMounts:
         - mountPath: /tmp
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: tmp-dir
         - mountPath: /opt/bitnami/minio/tmp
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: app-tmp-dir
         - mountPath: /.mc
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: app-mc-dir
         - mountPath: /bitnami/minio/data
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: data-dir
       {{- with .internal.imagePullSecrets }}
       imagePullSecrets:
@@ -142,7 +142,7 @@ spec:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-objectstorage-pvc
+      name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
