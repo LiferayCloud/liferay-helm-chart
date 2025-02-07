@@ -28,14 +28,6 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      securityContext:
-        capabilities:
-          drop:
-          - ALL
-        fsGroup: 1000
-        readOnlyRootFilesystem: true
-        runAsNonRoot: true
-        runAsUser: 1000
       initContainers:
         - name: {{ .Chart.Name }}-pre-populate-default-license
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -241,7 +233,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
+        capabilities:
+          drop:
+          - ALL
         fsGroup: 1000
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1000
       serviceAccountName: {{ include "liferay.serviceAccountName" . }}
       {{- with .Values.tolerations }}
       tolerations:
