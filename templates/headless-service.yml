@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "liferay.fullname" . }}-headless
   labels:
+    app: {{ $.Chart.Name }}
     {{- include "liferay.labels" . | nindent 4 }}
 spec:
   clusterIP: None # This is what makes it headless
@@ -16,4 +17,5 @@ spec:
       protocol: TCP
       name: http
   selector:
+    app: {{ $.Chart.Name }}
     {{- include "liferay.selectorLabels" . | nindent 4 }}

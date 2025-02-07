@@ -3,6 +3,7 @@ kind: StatefulSet
 metadata:
   name: {{ include "liferay.fullname" . }}
   labels:
+    app: {{ $.Chart.Name }}
     {{- include "liferay.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -10,6 +11,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
+      app: {{ $.Chart.Name }}
       {{- include "liferay.selectorLabels" . | nindent 6 }}
   serviceName: {{ include "liferay.fullname" . }}
   template:
@@ -19,6 +21,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        app: {{ $.Chart.Name }}
         {{- include "liferay.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
