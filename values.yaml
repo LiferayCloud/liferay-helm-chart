@@ -108,6 +108,10 @@ database:
   internal:
     enabled: true
 
+    # This is for setting the node selection constraints.
+    # See: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/
+    affinity: {}
+
     # Set the number of database replicas (0 or 1 for now)
     replicaCount: 1
 
@@ -155,6 +159,10 @@ search:
   internal:
     enabled: true
 
+    # This is for setting the node selection constraints.
+    # See: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/
+    affinity: {}
+
     # Set the number of search replicas (0 or 1 for now)
     replicaCount: 1
 
@@ -199,6 +207,10 @@ objectstorage:
   # (primarily used for local development)
   internal:
     enabled: true
+
+    # This is for setting the node selection constraints.
+    # See: https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/
+    affinity: {}
 
     # Set the number of objectstorage replicas (0 or 1 for now)
     replicaCount: 1

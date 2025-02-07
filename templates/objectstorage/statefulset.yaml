@@ -20,6 +20,10 @@ spec:
         app: {{ $.Chart.Name }}-objectstorage
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
+      {{- with .internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: "OnRootMismatch"

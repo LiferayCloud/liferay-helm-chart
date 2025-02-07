@@ -20,42 +20,46 @@ spec:
         app: {{ $.Chart.Name }}-search
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
+      {{- with .internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       initContainers:
-        - name: increase-vm-max-map
-          image: busybox
-          command: ["sysctl", "-w", "vm.max_map_count=262144"]
-          securityContext:
-            privileged: true
-        - name: increase-fd-ulimit
-          image: busybox
-          command: ["sh", "-c", "ulimit -n 65536"]
-          securityContext:
-            privileged: true
-        - name: install-plugins
-          image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              if [ ! -d ./plugins/analysis-icu ];then
-                bin/elasticsearch-plugin install --batch analysis-icu analysis-kuromoji analysis-smartcn analysis-stempel
-              else
-                echo "Plugins already installed!"
-              fi
+      - name: increase-vm-max-map
+        image: busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: busybox
+        command: ["sh", "-c", "ulimit -n 65536"]
+        securityContext:
+          privileged: true
+      - name: install-plugins
+        image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+        - 'sh'
+        - '-c'
+        - |
+          if [ ! -d ./plugins/analysis-icu ];then
+            bin/elasticsearch-plugin install --batch analysis-icu analysis-kuromoji analysis-smartcn analysis-stempel
+          else
+            echo "Plugins already installed!"
+          fi
 
-              if [ ! -e ./_config/log4j2.properties ];then
-                cp -rv ./config/* ./_config
-              fi
+          if [ ! -e ./_config/log4j2.properties ];then
+            cp -rv ./config/* ./_config
+          fi
 
-              find . -mtime -1 -ls
-          volumeMounts:
-            - mountPath: /usr/share/elasticsearch/plugins
-              name: liferay-search-pvc
-              subPath: plugins
-            - mountPath: /usr/share/elasticsearch/_config
-              name: liferay-search-pvc
-              subPath: config
+          find . -mtime -1 -ls
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: liferay-search-pvc
+          subPath: plugins
+        - mountPath: /usr/share/elasticsearch/_config
+          name: liferay-search-pvc
+          subPath: config
       containers:
       - name: {{ $.Chart.Name }}-search
         env:

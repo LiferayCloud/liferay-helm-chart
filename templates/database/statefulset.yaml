@@ -20,6 +20,10 @@ spec:
         app: {{ $.Chart.Name }}-database
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
+      {{- with .internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ $.Chart.Name }}-database
         env:
