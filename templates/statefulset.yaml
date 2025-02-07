@@ -65,6 +65,11 @@ spec:
         readinessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         {{- with .Values.startupProbe }}
         startupProbe:
           {{- toYaml . | nindent 10 }}
@@ -94,6 +99,9 @@ spec:
         - mountPath: /opt/liferay/tomcat/work
           name: liferay-working-data-pvc
           subPath: tomcat/work
+        - mountPath: /opt/liferay/osgi/modules
+          name: liferay-working-data-pvc
+          subPath: osgi/modules
         - mountPath: /opt/liferay/osgi/state
           name: liferay-working-data-pvc
           subPath: osgi/state
@@ -233,11 +241,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
-        capabilities:
-          drop:
-          - ALL
         fsGroup: 1000
-        readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 1000
       serviceAccountName: {{ include "liferay.serviceAccountName" . }}
