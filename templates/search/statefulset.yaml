@@ -73,6 +73,10 @@ spec:
         - mountPath: /usr/share/elasticsearch/plugins
           name: liferay-search-pvc
           subPath: plugins
+      {{- with .internal.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       initContainers:
       - name: increase-vm-max-map
         image: busybox

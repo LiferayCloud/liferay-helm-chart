@@ -114,6 +114,10 @@ spec:
         - mountPath: /bitnami/minio/data
           name: liferay-objectstorage-pvc
           subPath: data-dir
+      {{- with .internal.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .internal.initContainers -}}
       initContainers:
       {{ toYaml . | nindent 6 }}
