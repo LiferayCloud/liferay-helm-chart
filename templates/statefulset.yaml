@@ -28,210 +28,210 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      securityContext:
-        capabilities:
-          drop:
-          - ALL
-        fsGroup: 1000
-        readOnlyRootFilesystem: true
-        runAsNonRoot: true
-        runAsUser: 1000
-      initContainers:
-        - name: {{ .Chart.Name }}-pre-populate-default-license
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              mkdir -p /temp/liferay/deploy
-              cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
-          volumeMounts:
-          - mountPath: /temp
-            name: liferay-working-data-pvc
-        {{- if .Values.prePopulateDxpData }}
-        - name: {{ .Chart.Name }}-pre-populate-dxp-data
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              mkdir -p /temp/liferay/data
-
-              {{- if not .Values.database.internal.enabled }}
-              if [ ! -e /temp/liferay/.db.init ]; then
-                cp -rv /opt/liferay/data/hypersonic /temp/liferay/data
-              fi
-              touch /temp/liferay/.db.init
-              {{- end }}
-
-              {{- if not .Values.objectstorage.internal.enabled }}
-              if [ ! -e /temp/liferay/.objectstorage.init ]; then
-                cp -rv /opt/liferay/data/document_library /temp/liferay/data
-              fi
-              touch /temp/liferay/.objectstorage.init
-              {{- end }}
-
-              {{- if not .Values.search.internal.enabled }}
-              if [ ! -e /temp/liferay/.es.init ]; then
-                cp -rv /opt/liferay/data/elasticsearch7 /temp/liferay/data
-              fi
-              touch /temp/liferay/.es.init
-              {{- end }}
-
-          volumeMounts:
-          - mountPath: /temp
-            name: liferay-working-data-pvc
-        {{- end }}
-        {{- with .Values.initContainers -}}
-        {{ toYaml . | nindent 8 }}
-        {{- end }}
-        - name: {{ .Chart.Name }}-wait-on-services
-          image: busybox:latest
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              trap 'echo "Received signal to Terminate"; exit 0' SIGINT SIGTERM
-
-              {{- if .Values.database.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-database" (include "liferay.fullname" $)) .Values.database.config.host }} {{ .Values.database.config.port }}; do
-                echo "Waiting for Database service"
-                sleep 2
-              done
-              {{- end }}
-
-              {{- if .Values.objectstorage.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .Values.objectstorage.config.host }} {{ .Values.objectstorage.config.ports.api }}; do
-                echo "Waiting for Object Storage service"
-                sleep 2
-              done
-              {{- end }}
-
-              {{- if .Values.search.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-search" (include "liferay.fullname" $)) .Values.search.config.host }} {{ .Values.search.config.port }}; do
-                echo "Waiting for Search service"
-                sleep 2
-              done
-              {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          env:
-            - name: POD_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-            - name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_CONTROL_QUOTE__CLOSEBRACKET_
-              value: "${env.POD_ID}"
-            - name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_UDP_QUOTE__CLOSEBRACKET_
-              value: "${env.POD_ID}"
-            - name: LIFERAY_PORTAL_PERIOD_INSTANCE_PERIOD_INET_PERIOD_SOCKET_PERIOD_ADDRESS
-              value: "${env.POD_ID}:{{ .Values.service.port }}"
+      - name: {{ .Chart.Name }}
+        env:
+          - name: POD_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_CONTROL_QUOTE__CLOSEBRACKET_
+            value: "${env.POD_ID}"
+          - name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_UDP_QUOTE__CLOSEBRACKET_
+            value: "${env.POD_ID}"
+          - name: LIFERAY_PORTAL_PERIOD_INSTANCE_PERIOD_INET_PERIOD_SOCKET_PERIOD_ADDRESS
+            value: "${env.POD_ID}:{{ .Values.service.port }}"
 
-            {{- with .Values.env }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-            - name: debug
-              containerPort: {{ .Values.service.debugPort }}
-              protocol: TCP
-            - name: cluster
-              containerPort: {{ .Values.service.clusterPort }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
+          {{- with .Values.env }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.startupProbe }}
-          startupProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            # Mounts for liferay working directories allowing the
-            # container's root file system to remain readonly.
-            - mountPath: /opt/liferay/data
-              name: liferay-working-data-pvc
-              subPath: liferay/data
-            - mountPath: /opt/liferay/deploy
-              name: liferay-working-data-pvc
-              subPath: liferay/deploy
-            - mountPath: /opt/liferay/logs
-              name: liferay-working-data-pvc
-              subPath: liferay/logs
-            - mountPath: /opt/liferay/tomcat/temp
-              name: liferay-working-data-pvc
-              subPath: tomcat/temp
-            - mountPath: /opt/liferay/tomcat/logs
-              name: liferay-working-data-pvc
-              subPath: tomcat/logs
-            - mountPath: /opt/liferay/tomcat/work
-              name: liferay-working-data-pvc
-              subPath: tomcat/work
-            - mountPath: /opt/liferay/osgi/state
-              name: liferay-working-data-pvc
-              subPath: osgi/state
-            - mountPath: /opt/liferay/reports
-              name: liferay-working-data-pvc
-              subPath: liferay/reports
-            - mountPath: /opt/liferay/routes
-              name: liferay-working-data-pvc
-              subPath: liferay/routes
-            - mountPath: /opt/liferay/liferay.pid
-              name: liferay-working-data-pvc
-              subPath: liferay/liferay.pid
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.port }}
+          protocol: TCP
+        - name: debug
+          containerPort: {{ .Values.service.debugPort }}
+          protocol: TCP
+        - name: cluster
+          containerPort: {{ .Values.service.clusterPort }}
+          protocol: TCP
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        {{- with .Values.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        # Mounts for liferay working directories allowing the
+        # container's root file system to remain readonly.
+        - mountPath: /opt/liferay/data
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/data
+        - mountPath: /opt/liferay/deploy
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/deploy
+        - mountPath: /opt/liferay/logs
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/logs
+        - mountPath: /opt/liferay/tomcat/temp
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: tomcat/temp
+        - mountPath: /opt/liferay/tomcat/logs
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: tomcat/logs
+        - mountPath: /opt/liferay/tomcat/work
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: tomcat/work
+        - mountPath: /opt/liferay/osgi/modules
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: osgi/modules
+        - mountPath: /opt/liferay/osgi/state
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: osgi/state
+        - mountPath: /opt/liferay/reports
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/reports
+        - mountPath: /opt/liferay/routes
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/routes
+        - mountPath: /opt/liferay/liferay.pid
+          name: {{ include "liferay.fullname" $ }}-pvc
+          subPath: liferay/liferay.pid
 
-            # Mounted configuration files
-            {{- if not .Values.configmap.overrideDefaults }}
-            - mountPath: /opt/liferay/osgi/configs/com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config
-              name: liferay-file-resources
-              subPath: com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config
-              readOnly: true
-            - mountPath: /opt/liferay/portal-ext.properties
-              name: liferay-file-resources
-              subPath: portal-ext.properties
-              readOnly: true
-            - mountPath: /opt/liferay/portal-custom.properties
-              name: liferay-file-resources
-              subPath: portal-custom.properties
-              readOnly: true
-            {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
-            - mountPath: /opt/liferay/tomcat/conf/server.xml
-              name: liferay-file-resources
-              subPath: server.xml
-              readOnly: true
-            - mountPath: /opt/liferay/unicast.xml
-              name: liferay-file-resources
-              subPath: unicast.xml
-              readOnly: true
-            - mountPath: /opt/liferay/tomcat/webapps/ROOT/WEB-INF/web.xml
-              name: liferay-file-resources
-              subPath: web.xml
-              readOnly: true
-            - mountPath: /usr/local/liferay/scripts/pre-configure/000_jdk_java_options.sh
-              name: liferay-file-resources
-              subPath: 000_jdk_java_options.sh
-              readOnly: true
-            {{- end }}
-            {{- end }}
-            {{- with .Values.volumeMounts }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
+        # Mounted configuration files
+        {{- if not .Values.configmap.overrideDefaults }}
+        - mountPath: /opt/liferay/osgi/configs/com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config
+          name: liferay-file-resources
+          subPath: com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config
+          readOnly: true
+        - mountPath: /opt/liferay/portal-ext.properties
+          name: liferay-file-resources
+          subPath: portal-ext.properties
+          readOnly: true
+        - mountPath: /opt/liferay/portal-custom.properties
+          name: liferay-file-resources
+          subPath: portal-custom.properties
+          readOnly: true
+        {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
+        - mountPath: /opt/liferay/tomcat/conf/server.xml
+          name: liferay-file-resources
+          subPath: server.xml
+          readOnly: true
+        - mountPath: /opt/liferay/unicast.xml
+          name: liferay-file-resources
+          subPath: unicast.xml
+          readOnly: true
+        - mountPath: /opt/liferay/tomcat/webapps/ROOT/WEB-INF/web.xml
+          name: liferay-file-resources
+          subPath: web.xml
+          readOnly: true
+        - mountPath: /usr/local/liferay/scripts/pre-configure/000_jdk_java_options.sh
+          name: liferay-file-resources
+          subPath: 000_jdk_java_options.sh
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- with .Values.volumeMounts }}
+        {{- toYaml . | nindent 18 }}
+        {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+      - name: {{ .Chart.Name }}-pre-populate-default-license
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/bin/sh","-c"]
+        args:
+        - |
+          mkdir -p /temp/liferay/deploy
+          cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
+        volumeMounts:
+        - mountPath: /temp
+          name: {{ include "liferay.fullname" $ }}-pvc
+      {{- if .Values.prePopulateDxpData }}
+      - name: {{ .Chart.Name }}-pre-populate-dxp-data
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/bin/sh","-c"]
+        args:
+        - |
+          mkdir -p /temp/liferay/data
+
+          {{- if not .Values.database.internal.enabled }}
+          if [ ! -e /temp/liferay/.db.init ]; then
+            cp -rv /opt/liferay/data/hypersonic /temp/liferay/data
+          fi
+          touch /temp/liferay/.db.init
+          {{- end }}
+
+          {{- if not .Values.objectstorage.internal.enabled }}
+          if [ ! -e /temp/liferay/.objectstorage.init ]; then
+            cp -rv /opt/liferay/data/document_library /temp/liferay/data
+          fi
+          touch /temp/liferay/.objectstorage.init
+          {{- end }}
+
+          {{- if not .Values.search.internal.enabled }}
+          if [ ! -e /temp/liferay/.es.init ]; then
+            cp -rv /opt/liferay/data/elasticsearch7 /temp/liferay/data
+          fi
+          touch /temp/liferay/.es.init
+          {{- end }}
+
+        volumeMounts:
+        - mountPath: /temp
+          name: {{ include "liferay.fullname" $ }}-pvc
+      {{- end }}
+      {{- with .Values.initContainers -}}
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
+      - name: {{ .Chart.Name }}-wait-on-services
+        image: busybox:latest
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/bin/sh","-c"]
+        args:
+        - |
+          trap 'echo "Received signal to Terminate"; exit 0' SIGINT SIGTERM
+
+          {{- if .Values.database.internal.enabled }}
+          until nc -vz -w 2 {{ default (printf "%s-database" (include "liferay.fullname" $)) .Values.database.config.host }} {{ .Values.database.config.port }}; do
+            echo "Waiting for Database service"
+            sleep 2
+          done
+          {{- end }}
+
+          {{- if .Values.objectstorage.internal.enabled }}
+          until nc -vz -w 2 {{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .Values.objectstorage.config.host }} {{ .Values.objectstorage.config.ports.api }}; do
+            echo "Waiting for Object Storage service"
+            sleep 2
+          done
+          {{- end }}
+
+          {{- if .Values.search.internal.enabled }}
+          until nc -vz -w 2 {{ default (printf "%s-search" (include "liferay.fullname" $)) .Values.search.config.host }} {{ .Values.search.config.port }}; do
+            echo "Waiting for Search service"
+            sleep 2
+          done
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -242,24 +242,26 @@ spec:
       {{- end }}
       securityContext:
         fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
       serviceAccountName: {{ include "liferay.serviceAccountName" . }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: liferay-file-resources
-          configMap:
-            name: {{ include "liferay.fullname" . }}
-            optional: true
-        {{- with .Values.volumes }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+      - name: liferay-file-resources
+        configMap:
+          name: {{ include "liferay.fullname" . }}
+          optional: true
+      {{- with .Values.volumes }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-working-data-pvc
+      name: {{ include "liferay.fullname" $ }}-pvc
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

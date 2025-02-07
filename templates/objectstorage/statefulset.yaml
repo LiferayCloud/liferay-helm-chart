@@ -20,9 +20,10 @@ spec:
         app: {{ $.Chart.Name }}-objectstorage
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
-      securityContext:
-        fsGroup: 1001
-        fsGroupChangePolicy: "OnRootMismatch"
+      {{- with .internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ $.Chart.Name }}-objectstorage
         securityContext:
@@ -39,34 +40,34 @@ spec:
           seccompProfile:
             type: RuntimeDefault
         env:
-          - name: MINIO_API_PORT_NUMBER
-            value: {{ default "9000" .config.ports.api | quote }}
-          {{- range .internal.ingress.hosts }}
-          {{- $host := .host }}
-          {{- range .paths }}
-          {{- if eq .backendServicePortName "console" }}
-          - name: MINIO_BROWSER_REDIRECT_URL
-            value: {{ printf "%s://%s/" (default "http" $.Values.objectstorage.config.scheme) $host }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
-          - name: MINIO_CONSOLE_PORT_NUMBER
-            value: {{ default "9001" .config.ports.console | quote }}
-          - name: MINIO_DEFAULT_BUCKETS
-            value: {{ .config.buckets }}
-          - name: MINIO_REGION
-            value: {{ .config.region }}
-          - name: MINIO_ROOT_PASSWORD
-            value: {{ .config.password }}
-          - name: MINIO_ROOT_USER
-            value: {{ .config.user }}
-          - name: MINIO_SCHEME
-            value: {{ default "http" .config.scheme }}
-          - name: MINIO_SERVER_URL
-            value: "http://localhost:9000"
-          {{- with .internal.env }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
+        - name: MINIO_API_PORT_NUMBER
+          value: {{ default "9000" .config.ports.api | quote }}
+        {{- range .internal.ingress.hosts }}
+        {{- $host := .host }}
+        {{- range .paths }}
+        {{- if eq .backendServicePortName "console" }}
+        - name: MINIO_BROWSER_REDIRECT_URL
+          value: {{ printf "%s://%s/" (default "http" $.Values.objectstorage.config.scheme) $host }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        - name: MINIO_CONSOLE_PORT_NUMBER
+          value: {{ default "9001" .config.ports.console | quote }}
+        - name: MINIO_DEFAULT_BUCKETS
+          value: {{ .config.buckets }}
+        - name: MINIO_REGION
+          value: {{ .config.region }}
+        - name: MINIO_ROOT_PASSWORD
+          value: {{ .config.password }}
+        - name: MINIO_ROOT_USER
+          value: {{ .config.user }}
+        - name: MINIO_SCHEME
+          value: {{ default "http" .config.scheme }}
+        - name: MINIO_SERVER_URL
+          value: "http://localhost:9000"
+        {{- with .internal.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         image: {{ printf "%s:%s" (default "bitnami/minio" .internal.image.repository) ((default "2024" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
@@ -102,22 +103,46 @@ spec:
         {{- end }}
         volumeMounts:
         - mountPath: /tmp
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: tmp-dir
         - mountPath: /opt/bitnami/minio/tmp
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: app-tmp-dir
         - mountPath: /.mc
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: app-mc-dir
         - mountPath: /bitnami/minio/data
-          name: liferay-objectstorage-pvc
+          name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
           subPath: data-dir
+      {{- with .internal.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .internal.initContainers -}}
+      initContainers:
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .internal.schedulingGates }}
+      schedulingGates:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: "OnRootMismatch"
+      serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
+      {{- with .internal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-objectstorage-pvc
+      name: {{ include "liferay.fullname" $ }}-objectstorage-pvc
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

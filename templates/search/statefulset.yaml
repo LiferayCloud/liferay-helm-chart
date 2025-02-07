@@ -20,71 +20,39 @@ spec:
         app: {{ $.Chart.Name }}-search
         {{- include "liferay.labels" $ | nindent 8 }}
     spec:
-      initContainers:
-        - name: increase-vm-max-map
-          image: busybox
-          command: ["sysctl", "-w", "vm.max_map_count=262144"]
-          securityContext:
-            privileged: true
-        - name: increase-fd-ulimit
-          image: busybox
-          command: ["sh", "-c", "ulimit -n 65536"]
-          securityContext:
-            privileged: true
-        - name: install-plugins
-          image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              if [ ! -d ./plugins/analysis-icu ];then
-                bin/elasticsearch-plugin install --batch analysis-icu analysis-kuromoji analysis-smartcn analysis-stempel
-              else
-                echo "Plugins already installed!"
-              fi
-
-              if [ ! -e ./_config/log4j2.properties ];then
-                cp -rv ./config/* ./_config
-              fi
-
-              find . -mtime -1 -ls
-          volumeMounts:
-            - mountPath: /usr/share/elasticsearch/plugins
-              name: liferay-search-pvc
-              subPath: plugins
-            - mountPath: /usr/share/elasticsearch/_config
-              name: liferay-search-pvc
-              subPath: config
+      {{- with .internal.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: {{ $.Chart.Name }}-search
         env:
-          - name: xpack.security.enabled
-            value: "false"
-          - name: xpack.security.transport.ssl.enabled
-            value: "false"
-          - name: xpack.security.http.ssl.enabled
-            value: "false"
-          - name: cluster.name
-            value: {{ .config.clusterName }}
-          - name: discovery.type
-            value: single-node
-          - name: ES_JAVA_OPTS
-            value: "-Xms256m -Xmx256m"
-          - name: ELASTIC_PASSWORD
-            value: {{ .config.password }}
-          {{- with .internal.env }}
-          {{- toYaml . | nindent 10 }}
-          {{- end }}
+        - name: xpack.security.enabled
+          value: "false"
+        - name: xpack.security.transport.ssl.enabled
+          value: "false"
+        - name: xpack.security.http.ssl.enabled
+          value: "false"
+        - name: cluster.name
+          value: {{ .config.clusterName }}
+        - name: discovery.type
+          value: single-node
+        - name: ES_JAVA_OPTS
+          value: "-Xms256m -Xmx256m"
+        - name: ELASTIC_PASSWORD
+          value: {{ .config.password }}
+        {{- with .internal.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
           tcpSocket:
             port: search
         ports:
-          - name: search
-            containerPort: {{ default "9200" .config.port }}
-            protocol: TCP
+        - name: search
+          containerPort: {{ default "9200" .config.port }}
+          protocol: TCP
         readinessProbe:
           tcpSocket:
             port: search
@@ -93,25 +61,81 @@ spec:
           {{- toYaml . | nindent 12 }}
         {{- end }}
         volumeMounts:
-          - mountPath: /usr/share/elasticsearch/config
-            name: liferay-search-pvc
-            subPath: config
-          - mountPath: /usr/share/elasticsearch/data
-            name: liferay-search-pvc
-            subPath: data
-          - mountPath: /usr/share/elasticsearch/logs
-            name: liferay-search-pvc
-            subPath: logs
-          - mountPath: /usr/share/elasticsearch/plugins
-            name: liferay-search-pvc
-            subPath: plugins
+        - mountPath: /usr/share/elasticsearch/config
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: config
+        - mountPath: /usr/share/elasticsearch/data
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: data
+        - mountPath: /usr/share/elasticsearch/logs
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: logs
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: plugins
+      {{- with .internal.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      - name: increase-vm-max-map
+        image: busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: busybox
+        command: ["sh", "-c", "ulimit -n 65536"]
+        securityContext:
+          privileged: true
+      - name: install-plugins
+        image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+        - 'sh'
+        - '-c'
+        - |
+          if [ ! -d ./plugins/analysis-icu ];then
+            bin/elasticsearch-plugin install --batch analysis-icu analysis-kuromoji analysis-smartcn analysis-stempel
+          else
+            echo "Plugins already installed!"
+          fi
+
+          if [ ! -e ./_config/log4j2.properties ];then
+            cp -rv ./config/* ./_config
+          fi
+
+          find . -mtime -1 -ls
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/plugins
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: plugins
+        - mountPath: /usr/share/elasticsearch/_config
+          name: {{ include "liferay.fullname" $ }}-search-pvc
+          subPath: config
+      {{- with .internal.initContainers -}}
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .internal.schedulingGates }}
+      schedulingGates:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1000
+      serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
+      {{- with .internal.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
   - metadata:
-      name: liferay-search-pvc
+      name: {{ include "liferay.fullname" $ }}-search-pvc
     spec:
       accessModes: ["ReadWriteOnce"]
       resources:
