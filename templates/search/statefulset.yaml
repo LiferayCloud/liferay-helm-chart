@@ -60,6 +60,9 @@ spec:
         - mountPath: /usr/share/elasticsearch/_config
           name: liferay-search-pvc
           subPath: config
+      {{- with .internal.initContainers -}}
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: {{ $.Chart.Name }}-search
         env:

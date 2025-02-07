@@ -117,6 +117,10 @@ spec:
         - mountPath: /bitnami/minio/data
           name: liferay-objectstorage-pvc
           subPath: data-dir
+      {{- with .internal.initContainers -}}
+      initContainers:
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
