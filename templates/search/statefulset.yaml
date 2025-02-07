@@ -116,6 +116,10 @@ spec:
       {{- with .internal.initContainers -}}
       {{ toYaml . | nindent 6 }}
       {{- end }}
+      {{- with .internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         fsGroup: 1000
   updateStrategy:

@@ -67,6 +67,10 @@ spec:
       initContainers:
       {{ toYaml . | nindent 6 }}
       {{- end }}
+      {{- with .internal.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
