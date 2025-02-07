@@ -126,6 +126,7 @@ spec:
       {{- end }}
       securityContext:
         fsGroup: 1000
+      serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:

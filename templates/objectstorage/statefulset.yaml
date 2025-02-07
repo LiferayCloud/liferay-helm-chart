@@ -133,6 +133,7 @@ spec:
       securityContext:
         fsGroup: 1001
         fsGroupChangePolicy: "OnRootMismatch"
+      serviceAccountName: {{ include "liferay.serviceAccountName" $ }}
   updateStrategy:
     type: RollingUpdate
   volumeClaimTemplates:
