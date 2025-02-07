@@ -28,83 +28,6 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      initContainers:
-        - name: {{ .Chart.Name }}-pre-populate-default-license
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              mkdir -p /temp/liferay/deploy
-              cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
-          volumeMounts:
-          - mountPath: /temp
-            name: liferay-working-data-pvc
-        {{- if .Values.prePopulateDxpData }}
-        - name: {{ .Chart.Name }}-pre-populate-dxp-data
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              mkdir -p /temp/liferay/data
-
-              {{- if not .Values.database.internal.enabled }}
-              if [ ! -e /temp/liferay/.db.init ]; then
-                cp -rv /opt/liferay/data/hypersonic /temp/liferay/data
-              fi
-              touch /temp/liferay/.db.init
-              {{- end }}
-
-              {{- if not .Values.objectstorage.internal.enabled }}
-              if [ ! -e /temp/liferay/.objectstorage.init ]; then
-                cp -rv /opt/liferay/data/document_library /temp/liferay/data
-              fi
-              touch /temp/liferay/.objectstorage.init
-              {{- end }}
-
-              {{- if not .Values.search.internal.enabled }}
-              if [ ! -e /temp/liferay/.es.init ]; then
-                cp -rv /opt/liferay/data/elasticsearch7 /temp/liferay/data
-              fi
-              touch /temp/liferay/.es.init
-              {{- end }}
-
-          volumeMounts:
-          - mountPath: /temp
-            name: liferay-working-data-pvc
-        {{- end }}
-        {{- with .Values.initContainers -}}
-        {{ toYaml . | nindent 8 }}
-        {{- end }}
-        - name: {{ .Chart.Name }}-wait-on-services
-          image: busybox:latest
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          args:
-            - |
-              trap 'echo "Received signal to Terminate"; exit 0' SIGINT SIGTERM
-
-              {{- if .Values.database.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-database" (include "liferay.fullname" $)) .Values.database.config.host }} {{ .Values.database.config.port }}; do
-                echo "Waiting for Database service"
-                sleep 2
-              done
-              {{- end }}
-
-              {{- if .Values.objectstorage.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .Values.objectstorage.config.host }} {{ .Values.objectstorage.config.ports.api }}; do
-                echo "Waiting for Object Storage service"
-                sleep 2
-              done
-              {{- end }}
-
-              {{- if .Values.search.internal.enabled }}
-              until nc -vz -w 2 {{ default (printf "%s-search" (include "liferay.fullname" $)) .Values.search.config.host }} {{ .Values.search.config.port }}; do
-                echo "Waiting for Search service"
-                sleep 2
-              done
-              {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           env:
@@ -224,6 +147,83 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: {{ .Chart.Name }}-pre-populate-default-license
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              mkdir -p /temp/liferay/deploy
+              cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
+          volumeMounts:
+          - mountPath: /temp
+            name: liferay-working-data-pvc
+        {{- if .Values.prePopulateDxpData }}
+        - name: {{ .Chart.Name }}-pre-populate-dxp-data
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              mkdir -p /temp/liferay/data
+
+              {{- if not .Values.database.internal.enabled }}
+              if [ ! -e /temp/liferay/.db.init ]; then
+                cp -rv /opt/liferay/data/hypersonic /temp/liferay/data
+              fi
+              touch /temp/liferay/.db.init
+              {{- end }}
+
+              {{- if not .Values.objectstorage.internal.enabled }}
+              if [ ! -e /temp/liferay/.objectstorage.init ]; then
+                cp -rv /opt/liferay/data/document_library /temp/liferay/data
+              fi
+              touch /temp/liferay/.objectstorage.init
+              {{- end }}
+
+              {{- if not .Values.search.internal.enabled }}
+              if [ ! -e /temp/liferay/.es.init ]; then
+                cp -rv /opt/liferay/data/elasticsearch7 /temp/liferay/data
+              fi
+              touch /temp/liferay/.es.init
+              {{- end }}
+
+          volumeMounts:
+          - mountPath: /temp
+            name: liferay-working-data-pvc
+        {{- end }}
+        {{- with .Values.initContainers -}}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+        - name: {{ .Chart.Name }}-wait-on-services
+          image: busybox:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              trap 'echo "Received signal to Terminate"; exit 0' SIGINT SIGTERM
+
+              {{- if .Values.database.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-database" (include "liferay.fullname" $)) .Values.database.config.host }} {{ .Values.database.config.port }}; do
+                echo "Waiting for Database service"
+                sleep 2
+              done
+              {{- end }}
+
+              {{- if .Values.objectstorage.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-objectstorage" (include "liferay.fullname" $)) .Values.objectstorage.config.host }} {{ .Values.objectstorage.config.ports.api }}; do
+                echo "Waiting for Object Storage service"
+                sleep 2
+              done
+              {{- end }}
+
+              {{- if .Values.search.internal.enabled }}
+              until nc -vz -w 2 {{ default (printf "%s-search" (include "liferay.fullname" $)) .Values.search.config.host }} {{ .Values.search.config.port }}; do
+                echo "Waiting for Search service"
+                sleep 2
+              done
+              {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
