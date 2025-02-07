@@ -152,7 +152,7 @@ metadata:
 spec:
   selector:
     app: {{ $.Chart.Name }}-search
-    {{- include "liferay.labels" $ | nindent 4 }}
+    {{- include "liferay.selectorLabels" $ | nindent 4 }}
   ports:
   - name: search
     port: {{ .config.port }}
@@ -171,7 +171,7 @@ spec:
   clusterIP: None # This is what makes it headless
   selector:
     app: {{ $.Chart.Name }}-search
-    {{- include "liferay.labels" $ | nindent 4 }}
+    {{- include "liferay.selectorLabels" $ | nindent 4 }}
   ports:
   - name: search
     port: {{ .config.port }}
