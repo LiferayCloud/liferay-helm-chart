@@ -44,14 +44,14 @@ spec:
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
         livenessProbe:
           exec:
-            command: ["sh", "-c", "pg_isready", "-U", "$POSTGRES_USER"]
+            command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
         ports:
         - name: database
           containerPort: {{ default "5432" .config.port }}
           protocol: TCP
         readinessProbe:
           exec:
-            command: ["sh", "-c", "pg_isready", "-U", "$POSTGRES_USER"]
+            command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
         {{- with .internal.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
