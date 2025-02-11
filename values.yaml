@@ -116,6 +116,16 @@ database:
     # See: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
     initContainers: {}
 
+    livenessProbe:
+      exec:
+        command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    readinessProbe:
+      exec:
+        command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+    startupProbe:
+      exec:
+        command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+
     # Set the number of database replicas (0 or 1 for now)
     replicaCount: 1
 
@@ -171,6 +181,16 @@ search:
     # See: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
     initContainers: {}
 
+    livenessProbe:
+      tcpSocket:
+        port: search
+    readinessProbe:
+      tcpSocket:
+        port: search
+    startupProbe:
+      tcpSocket:
+        port: search
+
     # Set the number of search replicas (0 or 1 for now)
     replicaCount: 1
 
@@ -223,6 +243,22 @@ objectstorage:
     # Use this to add additional initContainers to the pod
     # See: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
     initContainers: {}
+
+    livenessProbe:
+      httpGet:
+        path: /minio/health/live
+        port: api
+        scheme: HTTP
+    readinessProbe:
+      httpGet:
+        path: /minio/health/ready
+        port: api
+        scheme: HTTP
+    startupProbe:
+      httpGet:
+        path: /minio/health/ready
+        port: api
+        scheme: HTTP
 
     # Set the number of objectstorage replicas (0 or 1 for now)
     replicaCount: 1

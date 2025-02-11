@@ -46,19 +46,25 @@ spec:
         {{- end }}
         image:  {{ printf "%s:%s" (default "search" .internal.image.repository) ((default "8.17.0" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with .internal.livenessProbe }}
         livenessProbe:
-          tcpSocket:
-            port: search
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - name: search
           containerPort: {{ default "9200" .config.port }}
           protocol: TCP
+        {{- with .internal.readinessProbe }}
         readinessProbe:
-          tcpSocket:
-            port: search
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .internal.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .internal.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/config

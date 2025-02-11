@@ -70,16 +70,10 @@ spec:
         {{- end }}
         image: {{ printf "%s:%s" (default "bitnami/minio" .internal.image.repository) ((default "2024" .internal.image.tag) | toString) }}
         imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        {{- with .internal.livenessProbe }}
         livenessProbe:
-          httpGet:
-            path: /minio/health/live
-            port: {{ default "9000" .config.ports.api }}
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-          successThreshold: 1
-          failureThreshold: 3
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - name: api
           containerPort: {{ default "9000" .config.ports.api }}
@@ -87,19 +81,17 @@ spec:
         - name: console
           containerPort: {{ default "9001" .config.ports.console }}
           protocol: TCP
+        {{- with .internal.readinessProbe }}
         readinessProbe:
-          httpGet:
-            path: /minio/health/ready
-            port: {{ default "9000" .config.ports.api }}
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 10
-          successThreshold: 1
-          failureThreshold: 3
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .internal.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .internal.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         volumeMounts:
         - mountPath: /tmp
