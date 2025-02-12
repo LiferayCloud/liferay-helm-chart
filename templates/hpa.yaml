@@ -3,6 +3,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "liferay.fullname" . }}
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     {{- include "liferay.labels" . | nindent 4 }}
 spec:

@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "liferay.fullname" $ }}-search
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
@@ -155,6 +156,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "liferay.fullname" $ }}-search
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}
@@ -173,6 +175,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "liferay.fullname" $ }}-search-headless
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     app: {{ $.Chart.Name }}-search
     {{- include "liferay.labels" $ | nindent 4 }}

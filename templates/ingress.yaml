@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "liferay.fullname" . }}
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     {{- include "liferay.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
