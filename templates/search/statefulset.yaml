@@ -147,6 +147,9 @@ spec:
       resources:
         requests:
           storage: {{ default "1Gi" .internal.storage}}
+      {{- if .internal.storageClassName }}
+      storageClassName: {{ .internal.storageClassName }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

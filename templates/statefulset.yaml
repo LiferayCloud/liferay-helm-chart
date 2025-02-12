@@ -270,3 +270,6 @@ spec:
       resources:
         requests:
           storage: {{ default "1Gi" .Values.storage }}
+      {{- if .Values.storageClassName }}
+      storageClassName: {{ .Values.storageClassName }}
+      {{- end }}
