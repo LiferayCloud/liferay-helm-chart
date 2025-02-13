@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "liferay.fullname" . }}
+  namespace: {{ include "liferay.namespace" . | quote }}
   labels:
     app: {{ $.Chart.Name }}
     {{- include "liferay.labels" . | nindent 4 }}
