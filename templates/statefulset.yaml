@@ -166,8 +166,10 @@ spec:
         command: ["/bin/sh","-c"]
         args:
         - |
-          mkdir -p /temp/liferay/deploy
-          cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
+          if [ ! -f /temp/liferay/data/license/*.li ]; then
+            mkdir -p /temp/liferay/deploy
+            cp -fv /opt/liferay/deploy/* /temp/liferay/deploy
+          fi
         volumeMounts:
         - mountPath: /temp
           name: {{ include "liferay.fullname" $ }}-pvc
