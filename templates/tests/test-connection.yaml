@@ -18,7 +18,7 @@ spec:
           START=$(date +%s)
 
           # Only wait for 5 minutes and then fail
-          until nc -vz -w 2 {{ include "liferay.fullname" . }} {{ .Values.service.port }}; do
+          until nc -vz -w 2 {{ include "liferay.fullname" . }} {{ (index .Values.service.ports 0).port }}; do
             NOW=$(date +%s)
             SPAN=$(($NOW - $START))
             if [ $SPAN -gt 300 ]; then
