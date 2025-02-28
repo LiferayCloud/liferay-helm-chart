@@ -116,18 +116,8 @@ initContainers:
 ingress:
   annotations: {}
   className: ""
-  enabled: true
-  rules:
-  - host: "*.dxp.docker.localhost"
-    http:
-      paths:
-      - backend:
-          service:
-            name: liferay
-            port:
-              name: http
-        path: /
-        pathType: ImplementationSpecific
+  enabled: false
+  rules: []
   tls: []
 
 livenessProbe:
