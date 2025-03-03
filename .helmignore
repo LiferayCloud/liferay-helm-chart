@@ -4,6 +4,7 @@
 .DS_Store
 # Common VCS dirs
 .git/
+.github/
 .gitignore
 .bzr/
 .bzrignore
@@ -19,8 +20,11 @@
 # Various IDEs
 .project
 .idea/
-*.tmproj
 .vscode/
+*.md
+*.tmproj
 
-dist/
+# Custom ignores
 _config.yml
+dist/
+values-*.yaml

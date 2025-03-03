@@ -14,131 +14,58 @@ data:
   portal-ext.properties: |
     include-and-override=portal-custom.properties
 
-    #
-    # Database
-    #
-    {{- with .Values.database.config }}
-    jdbc.default.driverClassName={{ default "org.postgresql.Driver" .jdbc.driverClassName }}
-    jdbc.default.url=jdbc:{{ default "postgresql" .jdbc.scheme }}://{{ default (printf "%s-database" (include "liferay.fullname" $)) .host }}:{{ default "5432" .port }}/{{ .database }}?{{ .parameters }}
-    jdbc.default.username={{ .user }}
-    jdbc.default.password={{ .password }}
-    {{- end }}
-
-    #
-    # Search
-    #
-    {{- with .Values.search.config }}
-    {{- if eq .engine "opensearch" }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_active=B"true"
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_authenticationEnabled=B{{ .authenticationEnabled | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_logExceptionsOnly=B"false"
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_password={{ .password | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_remoteClusterConnectionId="REMOTE"
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_username={{ .user | quote }}
-    {{- if and .mtls .mtls.enabled }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststorePassword={{ .mtls.truststorePassword | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststorePath={{ .mtls.truststorePath | quote }}
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_truststoreType={{ .mtls.truststoreType | quote }}
-    {{- end }}
-    {{- else }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_authenticationEnabled=B{{ .authenticationEnabled | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_clusterName={{ .clusterName | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_indexNamePrefix="liferay-"
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_operationMode="REMOTE"
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_password={{ .password | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_username={{ .user | quote }}
-    {{- if and .mtls .mtls.enabled }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststorePassword={{ .mtls.truststorePassword | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststorePath={{ .mtls.truststorePath | quote }}
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_truststoreType={{ .mtls.truststoreType | quote }}
+    {{ .Values.portalProperties | nindent 4 }}
+    {{- range $i := .Values.dependencies }}
+    {{- if $i.portalProperties }}
+    {{ $i.portalProperties | nindent 4 }}
     {{- end }}
     {{- end }}
-    {{- end }}
-
-    #
-    # Object (File) Storage
-    #
-    {{- with .Values.objectstorage.config }}
-    dl.store.impl={{ .dlStoreImpl }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_accessKey={{ .user | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_bucketName={{ .buckets | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_connectionProtocol={{ .scheme | upper | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_connectionTimeout=i{{ .connectionTimeout | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_corePoolSize=i{{ .corePoolSize | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxConnections=i{{ .httpClientMaxConnections | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxErrorRetry=B{{ .httpClientMaxErrorRetry | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ printf "%s%s" (default (printf "%s-objectstorage" (include "liferay.fullname" $)) .host)  (ternary "" (printf ":%d" (.ports.api | int)) (empty .ports.api)) }}"
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3PathStyle=B{{ .pathStyle | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Region={{ .region | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_secretKey={{ .password | quote }}
-    {{- end }}
-
-    database.indexes.update.on.startup=true
-    #index.on.startup=true
-    notification.email.template.enabled=false
-    passwords.default.policy.change.required={{ .Values.config.requiredPasswordChange }}
-    passwords.default.policy.lockout.duration=3600
-    passwords.default.policy.lockout=true
-    passwords.default.policy.max.failure=20
-    passwords.default.policy.reset.failure.count=3600
-    portal.instance.protocol=http
-    schema.module.build.auto.upgrade=true
-    setup.wizard.enabled=false
-    upgrade.database.auto.run=true
-    upgrade.log.context.enabled=true
-    upgrade.report.dir=${liferay.home}/reports
-    upgrade.report.dl.storage.size.timeout=0
-    upgrade.report.enabled=true
-    virtual.hosts.valid.hosts=*
-    web.server.forwarded.host.enabled=true
-    web.server.forwarded.protocol.enabled=true
-    web.server.http.port=80
-    web.server.https.port=443
-    web.server.protocol=http
-
-    default.admin.password={{ .Values.config.password }}
-    default.admin.screen.name={{ .Values.config.user }}
-    default.admin.email.address.prefix={{ .Values.config.user }}
-    company.default.name=Liferay DXP
-    company.default.web.id={{ .Values.config.mainVirtualHost }}
-    company.default.virtual.host.name={{ .Values.config.mainVirtualHost }}
-    company.default.virtual.host.mail.domain={{ .Values.config.mainVirtualHost }}
-    company.default.virtual.host.sync.on.startup=true
-
-    module.framework.properties.org.apache.felix.configadmin.plugin.interpolation.secretsdir=/opt/liferay/osgi/configs,/var/run/secrets/kubernetes.io/serviceaccount
-
-    configuration.override.com.liferay.portal.component.blacklist.internal.configuration.ComponentBlacklistConfiguration_blacklistComponentNames=[\
-      "com.liferay.portal.store.s3.IBMS3Store"\
-    ]
 
     configuration.override.com.liferay.portal.bundle.blacklist.internal.configuration.BundleBlacklistConfiguration_blacklistBundleSymbolicNames=[\
-      {{- if eq .Values.search.config.engine "opensearch" }}
-      "com.liferay.portal.search.elasticsearch.cross.cluster.replication.impl"\
-      ,"com.liferay.portal.search.elasticsearch.monitoring.web"\
-      ,"com.liferay.portal.search.elasticsearch7.api"\
-      ,"com.liferay.portal.search.elasticsearch7.impl"\
-      ,"com.liferay.portal.search.learning.to.rank.api"\
-      ,"com.liferay.portal.search.learning.to.rank.impl"\
+      {{- $PREFIX := "" }}
+      {{- range $bundle := .Values.portalBundleDenyList }}
+      {{ $PREFIX }}{{ $bundle | quote }}\
+      {{- $PREFIX = "," -}}
+      {{- end }}
+      {{- range $i := .Values.dependencies }}
+      {{- range $bundle := $i.portalBundleDenyList }}
+      {{ $PREFIX }}{{ $bundle | quote }}\
+      {{- $PREFIX = "," -}}
+      {{- end }}
       {{- end }}
     ]
 
-    # As a System admin, I would like to use Site/Instance OSGi configurations across different systems
-    feature.flag.LPS-155284=true
+    configuration.override.com.liferay.portal.component.blacklist.internal.configuration.ComponentBlacklistConfiguration_blacklistComponentNames=[\
+      {{- $PREFIX := "" }}
+      {{- range $component := .Values.portalComponentDenyList }}
+      {{ $PREFIX }}{{ $component | quote }}\
+      {{- $PREFIX = "," }}
+      {{- end }}
+      {{- range $i := .Values.dependencies }}
+      {{- range $component := $i.portalComponentDenyList }}
+      {{ $PREFIX }}{{ $component | quote }}\
+      {{- $PREFIX = "," }}
+      {{- end }}
+      {{- end }}
+    ]
+
+    company.default.virtual.host.sync.on.startup=true
 
     # SRE-5860 Enable TCP keep alive
     configuration.override.com.liferay.portal.http.internal.configuration.HttpConfiguration_tcpKeepAliveEnabled=B"true"
 
+    configuration.override.com.liferay.redirect.internal.configuration.RedirectURLConfiguration_securityMode="domain"
+
+    # As a System admin, I would like to use Site/Instance OSGi configurations across different systems
+    feature.flag.LPS-155284=true
+
     # SRE-5749 enable FeatureFlag LPS-202104
     feature.flag.LPS-202104=true
 
+    {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
     #
     # Clustering
     #
-    {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
     cluster.link.autodetect.address=
     cluster.link.channel.properties.control=/opt/liferay/unicast.xml
     cluster.link.channel.properties.transport.0=/opt/liferay/unicast.xml
@@ -147,7 +74,7 @@ data:
     portlet.session.replicate.enabled=true
     {{- end }}
 
-    configuration.override.com.liferay.redirect.internal.configuration.RedirectURLConfiguration_securityMode="domain"
+    module.framework.properties.org.apache.felix.configadmin.plugin.interpolation.secretsdir=/opt/liferay/osgi/configs,/var/run/secrets/kubernetes.io/serviceaccount
 
   com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config: |
     apiServerHost="$[env:KUBERNETES_SERVICE_HOST]"
@@ -157,7 +84,7 @@ data:
     namespace="$[secret:namespace]"
     saToken="$[secret:token]"
 
-  {{- if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
+  {{ if  or (gt (int .Values.replicaCount) 1) .Values.autoscaling.enabled }}
   000_jdk_java_options.sh: |
     #!/usr/bin/env bash
     export JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS} --add-opens=jdk.naming.dns/com.sun.jndi.dns=java.naming"
@@ -308,6 +235,7 @@ data:
           <!--For clustering, please take a look at documentation at:
               /docs/cluster-howto.html  (simple how to)
               /docs/config/cluster.html (reference documentation) -->
+          <!-- THIS IS THE ONLY CHANGE: BEGIN -->
           <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster">
             <Manager className="com.liferay.support.tomcat.session.LiferayDeltaManager" />
             <Channel className="org.apache.catalina.tribes.group.GroupChannel">
@@ -316,6 +244,7 @@ data:
               </Sender>
             </Channel>
           </Cluster>
+          <!-- THIS IS THE ONLY CHANGE: END -->
 
           <!-- Use the LockOutRealm to prevent attempts to guess user passwords
               via a brute-force attack -->
@@ -402,7 +331,9 @@ data:
     <?xml version="1.0"?>
 
     <web-app id="Liferay_Portal" metadata-complete="true" version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+      <!-- THIS IS THE ONLY CHANGE: BEGIN -->
       <distributable />
+      <!-- THIS IS THE ONLY CHANGE: END -->
       <context-param>
         <param-name>axis.servicesPath</param-name>
         <param-value>/api/axis/</param-value>
