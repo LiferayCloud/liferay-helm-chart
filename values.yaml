@@ -95,7 +95,7 @@ database:
     user: database
     password: database
     database: lportal
-    # host: liferay-database
+    host: liferay-database
     port: 5432
     # JDBC Connect String format: jdbc:{scheme}://{host}:{port}/{database}?{parameters}
     jdbc:
@@ -157,7 +157,7 @@ search:
     user: search
     password: search
     clusterName: liferay_cluster
-    # host: liferay-search
+    host: liferay-search
     authenticationEnabled: false
     httpSSLEnabled: false
     port: 9200
@@ -221,7 +221,7 @@ objectstorage:
     dlStoreImpl: com.liferay.portal.store.s3.S3Store
     httpClientMaxConnections: 10
     httpClientMaxErrorRetry: 3
-    # host: liferay-objectstorage
+    host: liferay-objectstorage
     password: objectstorage
     pathStyle: true
     ports:
