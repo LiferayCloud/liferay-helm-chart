@@ -19,7 +19,7 @@ data:
     #
     {{- with .Values.database.config }}
     jdbc.default.driverClassName={{ default "org.postgresql.Driver" .jdbc.driverClassName }}
-    jdbc.default.url=jdbc:{{ default "postgresql" .jdbc.scheme }}://{{ default (printf "%s-database" (include "liferay.fullname" $)) .host }}:{{ default "5432" .port }}/{{ .database }}?{{ .parameters }}
+    jdbc.default.url=jdbc:{{ default "postgresql" .jdbc.scheme }}://{{ printf "%s%s" .host (ternary "" (printf ":%d" (.port | int)) (or (empty .host) (empty .port))) }}/{{ .database }}?{{ .parameters }}
     jdbc.default.username={{ .user }}
     jdbc.default.password={{ .password }}
     {{- end }}
@@ -33,7 +33,7 @@ data:
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_authenticationEnabled=B{{ .authenticationEnabled | quote }}
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_logExceptionsOnly=B"false"
-    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
+    configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_networkHostAddresses=["{{ printf "%s%s" .host (ternary "" (printf ":%d" (.port | int)) (or (empty .host) (empty .port))) }}"]
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_password={{ .password | quote }}
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_remoteClusterConnectionId="REMOTE"
     configuration.override.com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration_username={{ .user | quote }}
@@ -47,7 +47,7 @@ data:
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_clusterName={{ .clusterName | quote }}
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_httpSSLEnabled=B{{ .httpSSLEnabled | quote }}
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_indexNamePrefix="liferay-"
-    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_networkHostAddresses=["{{ printf "%s://%s%s" (default "http" .scheme) (default (printf "%s-search" (include "liferay.fullname" $)) .host) (ternary "" (printf ":%d" (.port | int)) (empty .port)) }}"]
+    configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_networkHostAddresses=["{{ printf "%s%s" .host (ternary "" (printf ":%d" (.port | int)) (or (empty .host) (empty .port))) }}"]
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_operationMode="REMOTE"
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_password={{ .password | quote }}
     configuration.override.com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration_username={{ .user | quote }}
@@ -64,17 +64,6 @@ data:
     #
     {{- with .Values.objectstorage.config }}
     dl.store.impl={{ .dlStoreImpl }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_accessKey={{ .user | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_bucketName={{ .buckets | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_connectionProtocol={{ .scheme | upper | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_connectionTimeout=i{{ .connectionTimeout | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_corePoolSize=i{{ .corePoolSize | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxConnections=i{{ .httpClientMaxConnections | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_httpClientMaxErrorRetry=B{{ .httpClientMaxErrorRetry | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Endpoint="{{ printf "%s%s" (default (printf "%s-objectstorage" (include "liferay.fullname" $)) .host)  (ternary "" (printf ":%d" (.ports.api | int)) (empty .ports.api)) }}"
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3PathStyle=B{{ .pathStyle | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_s3Region={{ .region | quote }}
-    configuration.override.com.liferay.portal.store.s3.configuration.S3StoreConfiguration_secretKey={{ .password | quote }}
     {{- end }}
 
     database.indexes.update.on.startup=true
@@ -148,6 +137,21 @@ data:
     {{- end }}
 
     configuration.override.com.liferay.redirect.internal.configuration.RedirectURLConfiguration_securityMode="domain"
+
+  {{- with .Values.objectstorage.config }}
+  com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config: |
+    accessKey={{ .user | quote }}
+    bucketName={{ .buckets | quote }}
+    connectionProtocol={{ .scheme | upper | quote }}
+    connectionTimeout=i{{ .connectionTimeout | quote }}
+    corePoolSize=i{{ .corePoolSize | quote }}
+    httpClientMaxConnections=i{{ .httpClientMaxConnections | quote }}
+    httpClientMaxErrorRetry=B{{ .httpClientMaxErrorRetry | quote }}
+    s3Endpoint="{{ printf "%s%s" .host (ternary "" (printf ":%d" (.ports.api | int)) (or (empty .host) (empty .ports.api))) }}"
+    s3PathStyle=B{{ .pathStyle | quote }}
+    s3Region={{ .region | quote }}
+    secretKey={{ .password | quote }}
+  {{- end }}
 
   com.liferay.portal.k8s.agent.configuration.PortalK8sAgentConfiguration.config: |
     apiServerHost="$[env:KUBERNETES_SERVICE_HOST]"
